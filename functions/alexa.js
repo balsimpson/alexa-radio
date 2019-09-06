@@ -1,5 +1,5 @@
 // Set your STDLIB_LIBRARY_TOKEN inside env.json
-const db = require('lib')({ token: process.env.STDLIB_LIBRARY_TOKEN }).utils.kv;
+const db = require('lib')({ token: process.env.STDLIB_SECRET_TOKEN }).utils.kv;
 
 // Global variable of collection
 let collection;

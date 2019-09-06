@@ -14,7 +14,7 @@ You can also ask Alexa for a channel or a station by name. If you say Alexa, ask
 
 ## Usage
 
-Deploying it is incredibly easy thanks to [Standard Library](https://stdlib.com/). It involves two steps and lots of button clicking.
+Deploying it is incredibly easy thanks to [Standard Library](https://stdlib.com/). It involves two steps and lots of button clicking and some copy pasta.
 
 ### Step 1
 
