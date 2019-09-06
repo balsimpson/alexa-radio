@@ -682,10 +682,11 @@
 
 	<!-- Compiled and minified MaterializeCSS JavaScript -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-	
+
 
 	<script>
 		let user_collection_url = "user_url";
+		// let user_collection_url = "https://learn.api.stdlib.com/test-radio@dev/";
 		console.log('user_collection_url:', user_collection_url);
 	</script>
 	<script>
@@ -694,15 +695,6 @@
 			var elems = document.querySelectorAll('.modal');
 			var instances = M.Modal.init(elems, {
 				onOpenStart: modalOpen
-			});
-
-			let autocomplete_elems = document.querySelectorAll('.autocomplete');
-			let autocomplete_instances = M.Autocomplete.init(autocomplete_elems, {
-				data: {
-					"Apple": null,
-					"Microsoft": null,
-					"Google": null
-				}
 			});
 		}
 
@@ -717,10 +709,9 @@
 		// Entire collection data
 		let collection = {};
 		// Items list from collection 
-		let items_list = [];
+		// let items_list = [];
 
 		let new_channel = {
-			name: '',
 			items: []
 		};
 
@@ -795,8 +786,6 @@
 				let index = items_div.children.length;
 
 				let stationhtml = quickStationHTML(item, channel_name, index);
-				console.log("TCL: collectionAddItem -> items_div", items_div)
-
 				items_div.appendChild(stationhtml);
 
 				let new_item = {
@@ -807,7 +796,7 @@
 
 				// update collection
 				collection.list[channel_index].items.push(new_item);
-				items_list = collection.list;
+				// items_list = collection.list;
 
 				saveStations(collection.list, `${item_name} added to ${channel_name}`);
 
@@ -877,15 +866,14 @@
 				// Clear form
 				el('#modal-add-channel-form').reset();
 				el('#modal-stations-list').innerHTML = '';
-
-				// Render channels
-				renderChannels(collection.list, initMaterialize);
+				el(`#shuffle-channel`).checked = false;
 
 				let item_txt = (new_channel.items.length > 1) ? 'stations' : 'station';
 				let toast_msg = `${channel_name} saved with ${new_channel.items.length} ${item_txt}`;
-				saveStations(collection.list, toast_msg);
 
-				new_channel.items = [];
+				console.log('add channel:', new_channel);
+
+				saveStations(collection.list, toast_msg);
 
 			} else {
 				if (channel_name) {
@@ -900,8 +888,6 @@
 
 		function addStation(e) {
 
-			// console.log(e);
-
 			e.preventDefault();
 			let station_name = el('#modal-station-name').value;
 			let station_url = el('#modal-station-url').value;
@@ -910,9 +896,6 @@
 			let url_valid = el('#modal-station-url').classList.contains("valid");
 
 			if (name_valid && url_valid) {
-
-				console.log('valid');
-
 				// Add to channel
 				let new_station = {
 					name: station_name,
@@ -946,7 +929,11 @@
 		}
 
 		function stationQuickAddBtnStatus(e) {
-			console.log('hello');
+
+			new_channel = {
+				name: '',
+				items: []
+			};
 
 			let parent_node = e.target.parentNode.parentNode;
 
@@ -995,15 +982,19 @@
 			// console.log('writing', parent_node);
 		}
 
-		function deleteStation(e) {
+		async function deleteStation(e) {
 
 			e.preventDefault();
+
+			let items_list = collection.list;
 			let delete_btn = e.target.parentNode;
 			if (delete_btn.classList.contains('delete-station-btn')) {
 				let station_item = delete_btn.parentNode.parentNode;
 				let station_index = station_item.getAttribute('data-index');
 				let channel_item = station_item.parentNode.parentNode;
 				let channel_index = channel_item.getAttribute('data-index');
+
+				console.log(station_index, channel_index, items_list[channel_index]);
 
 				let station_name = items_list[channel_index].items[station_index].name;
 				let channel_name = items_list[channel_index].name;
@@ -1013,7 +1004,7 @@
 				// delete channel progress
 				let channel_progress_station = '';
 				if (items_list[channel_index] && items_list[channel_index].progress) {
-					channel_progress_station = items_list[channel_index].progress.name; 
+					channel_progress_station = items_list[channel_index].progress.name;
 				}
 				if (station_name == channel_progress_station) {
 					items_list[channel_index].progress = {};
@@ -1024,6 +1015,8 @@
 					collection.resume = {};
 				}
 
+				// collection.list = items_list;
+
 				// if no stations, delete channel
 				if (items_list[channel_index].items.length == 0) {
 					items_list.splice(channel_index, 1);
@@ -1031,27 +1024,9 @@
 				} else {
 					saveStations(items_list, `${station_name} deleted from ${channel_name}`);
 				}
-				renderChannels(items_list, initMaterialize);
+
 			}
 		}
-
-		// function deleteStation(channel_name, station_name, event) {
-		// 	event.preventDefault();
-		// 	for (const [channel_index, channel] of items_list.entries()) {
-		// 		if (channel.name === channel_name) {
-		// 			for (const [index, station] of channel.stations.entries()) {
-		// 				// for (const station of channel.stations) {
-		// 				if (station.name === station_name) {
-		// 					console.log(index, station);
-		// 					console.log();
-		// 					items_list[channel_index].stations.splice(index, 1);
-		// 					renderChannels(items_list);
-		// 					saveStations(items_list);
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
 
 		// Show Item Add Input Fields
 		function showAddItem(channel_name, event) {
@@ -1119,17 +1094,14 @@
 					// Empty state check
 					collection = result.data;
 
-					if (collection) {
-						items_list = collection.list;
-					} else {
+					if (!collection) {
 						collection = {};
 						collection.list = [];
 						collection.settings = {};
 						collection.resume = {};
-						items_list = [];
 					}
 
-					renderChannels(items_list, initMaterialize);
+					renderChannels(collection.list, initMaterialize);
 					// Listen to Channel Name Edit
 					let channel_names = document.querySelectorAll('.channel-name');
 					// console.log(channel_names);
@@ -1144,15 +1116,19 @@
 				resume: collection.resume || {},
 				list: channels
 			}
-			axios({
 
+			axios({
 				url: `${user_collection_url}stations/?status=update&info=${JSON.stringify(data)}`,
 				method: "GET"
 			})
 				.then(result => {
-					console.log('result', result.status);
 					if (result.status == 200) {
+						console.log('result', result.status, collection.list);
 						showToast('check', toast_msg);
+						renderChannels(collection.list, initMaterialize);
+						new_channel = {
+							items: []
+						};
 					} else {
 						console.log('save not successful');
 					}
@@ -1264,8 +1240,6 @@
 
 			callback();
 		}
-
-
 
 		function quickStationHTML(station, collection, index) {
 			let station_item = createNode('div', ['row', 'station-item', 'valign-wrapper']);
