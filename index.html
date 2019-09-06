@@ -1011,7 +1011,10 @@
 				// delete station
 				items_list[channel_index].items.splice(station_index, 1);
 				// delete channel progress
-				let channel_progress_station = items_list[channel_index].progress.name || '';
+				let channel_progress_station = '';
+				if (items_list[channel_index] && items_list[channel_index].progress) {
+					channel_progress_station = items_list[channel_index].progress.name; 
+				}
 				if (station_name == channel_progress_station) {
 					items_list[channel_index].progress = {};
 				}
