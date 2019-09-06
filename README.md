@@ -103,7 +103,7 @@ A few things to note:
 - The station URL has to start with `https`
 - If you're adding MP3 files as part of an audiobook, make sure **shuffle** is off
 
-Click on the **Save** button once you've added your channel. You can of couurse add more channels if you want.
+Click on the **Save** button once you've added your channel. You can of course add more channels if you want.
 
 ### Customising Alexa responses
 

@@ -879,7 +879,7 @@
 				el('#modal-stations-list').innerHTML = '';
 
 				// Render channels
-				renderChannels(collection.list);
+				renderChannels(collection.list, initMaterialize);
 
 				let item_txt = (new_channel.items.length > 1) ? 'stations' : 'station';
 				let toast_msg = `${channel_name} saved with ${new_channel.items.length} ${item_txt}`;
@@ -1028,7 +1028,7 @@
 				} else {
 					saveStations(items_list, `${station_name} deleted from ${channel_name}`);
 				}
-				renderChannels(items_list);
+				renderChannels(items_list, initMaterialize);
 			}
 		}
 
