@@ -508,25 +508,6 @@
 
 	<div class="container main-content center-align">
 
-		<!-- <div class="prompt-input" contenteditable="true"</div> -->
-
-		<!-- <input name="some name" class="prompt-input autocomplete" id="autocomplete-input" cols="30" rows="10">
-			>here is <span contenteditable="false" class="variable-block"
-			draggable="true">station</span> -->
-
-		<input type="text" id="autocomplete-input" class="autocomplete prompt-input ">
-
-		<!-- Dropdown Trigger -->
-		<a class='dropdown-button btn' href='#' data-activates='dropdown1'>Drop Me!</a>
-
-		<!-- Dropdown Structure -->
-		<ul id='dropdown1' class='dropdown-content'>
-			<li><a href="#!">one</a></li>
-			<li><a href="#!">two</a></li>
-			<li class="divider"></li>
-			<li><a href="#!">three</a></li>
-		</ul>
-
 		<div class="row intro">
 			<div class="col s8 offset-s2">
 				<p class="blue-grey-text text-lighten-3">Alexa Audio Player supports AAC/MP4, MP3, HLS, PLS and M3U
@@ -769,38 +750,6 @@
 
 		// Save Settings
 		el('#settings-save').addEventListener('click', saveSettings);
-
-		
-
-		// prompt-input listener
-		el('.prompt-input').addEventListener('keydown', e => {
-			// console.log(e);
-
-			let input = el('.prompt-input');
-			// console.log("TCL: input", input, input.value)
-			let pos = 0;
-			var front = (input.value).substring(0, pos);
-			var back = (input.value).substring(pos, input.value.length);
-			// input.value = front + text + back;
-
-			// console.log(front, back);
-			if (e.key == '@') {
-				// var elems = document.querySelectorAll('.autocomplete');
-				// var instances = M.Autocomplete.init(elems, {
-				// 	data: {
-				// 		station: null,
-				// 		channel: null
-				// 	}
-				// });
-				let instance = M.Autocomplete.getInstance(el('.autocomplete'));
-				console.log("TCL: instance", instance.isOpen)
-				instance.open();
-				// e.target.innerHTML += `<span class="variable-block">station</span>`;
-
-				insertAtCursor(e.target, '@station');
-			}
-		});
-
 
 		function insertAtCursor(input, textToInsert) {
 			const isSuccess = document.execCommand("insertText", false, textToInsert);
