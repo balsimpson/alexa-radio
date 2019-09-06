@@ -83,12 +83,33 @@ That's all the setup you need to do. In the Alexa Development portal, click on *
 
 Once you get the pop-up saying that the **Build Succeeded**, click on the **Test** tab next to Build on the Alexa Developer console. Turn on testing and type in *open radio*.
 
-You should get a reply asking you to go to the web page to add your stations. let's do that now. Go to your main stdlib URL, which is the first URL noted below.
+You should get a reply asking you to go to the web page to add your stations. Let's do that now. Go to your main stdlib URL, which is the first URL noted below.
 
 ![Screenshot 3](./data/tutorial/Screenshot4.png?raw=true "Screenshot 3")
 
+***
 
+### Adding your stations
 
+Clicking on the above link will open a web page where you can add channels and stations, as well as customise Alexa responses.
 
+![Screenshot 3](./data/tutorial/webpage1.png?raw=true "Screenshot 3")
+
+Let's add a channel first. click on the **Channel** button to add a new channel.
+
+![Screenshot 3](./data/tutorial/webpage2.png?raw=true "Screenshot 2")
+
+A few things to note:
+- The station URL has to start with `https`
+- If you're adding MP3 files as part of an audiobook, make sure **shuffle** is off
+
+Click on the **Save** button once you've added your channel. You can of couurse add more channels if you want.
+
+### Customising Alexa responses
+
+You can cutomise Alexa responses by clicking the gear icon on the top right of the main page. Here you can add or remove the responses.
+>Use SSML if you want, to give it more personality.
+
+![Screenshot 3](./data/tutorial/webpage3.png?raw=true "Screenshot 2")
 
 
