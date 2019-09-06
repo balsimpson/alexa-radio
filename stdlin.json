@@ -1,0 +1,13 @@
+{
+  "name": "tinkr/alexa-radio",
+  "version": "0.8.0",
+  "publish": true,
+  "description": "",
+  "env": [
+    {
+      "name": "ENV_VAR",
+      "defaultValue": "",
+      "description": ""
+    }
+  ]
+}
