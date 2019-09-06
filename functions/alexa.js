@@ -1,4 +1,5 @@
-// Set your STDLIB_LIBRARY_TOKEN inside env.json
+const verifier = require('alexa-verifier');
+
 const db = require('lib')({ token: process.env.STDLIB_SECRET_TOKEN }).utils.kv;
 
 // Global variable of collection
