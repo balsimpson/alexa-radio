@@ -18,8 +18,11 @@ Deploying it is incredibly easy thanks to [Standard Library](https://stdlib.com/
 
 ### Step 1
 
-Click the button below to deploy the code to stdlib.
+Right-Click on the button below to deploy the code to stdlib.
 
 [<img src="https://deploy.stdlib.com/static/images/deploy.svg" width="192">](https://deploy.stdlib.com/)
 
-data/tutorial/Screenshot 2019-09-06 at 12.50.41 pm.png
+On the new page, click on the Generate Identity button. Once that's done, click on the Deploy Project button under it to deploy the code.
+![Screenshot 1](./data/tutorial/Screenshot1.png?raw=true "Screenshot 1")
+
+Once deployed, you'll see this page.
