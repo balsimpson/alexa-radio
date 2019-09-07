@@ -70,10 +70,88 @@
 		}
 
 		.channel-name {
+			position: relative;
 			font-size: 24px;
 			font-weight: 400;
 			color: lightgray;
+			opacity: 0.8;
+		}
 
+		.station-name {
+			position: relative;
+			opacity: 0.8;
+		}
+		
+		.station-url {
+			position: relative;
+			opacity: 0.8;
+		}
+
+		.channel-name:focus {
+			outline: 0;
+			opacity: 1;
+		}
+
+		.station-name:focus {
+			outline: 0;
+			opacity: 1;
+		}
+		
+		.station-url:focus {
+			outline: 0;
+			opacity: 1;
+		}
+
+		.channel-name::after {
+			content: 'Press enter to save';
+			position: absolute;
+			bottom: -21px;
+			left: 0;
+			font-size: 10px;
+			font-weight: 200;
+			opacity: 0;
+			transition: opacity .2s;
+			/* display: none; */
+		}
+
+		.station-name::after {
+			content: 'Press enter to save';
+			/* position: absolute; */
+			color: #263238;
+			bottom: -21px;
+			/* left: 0; */
+			font-size: 10px;
+			font-weight: 200;
+			opacity: 0;
+			transition: opacity .2s;
+			/* display: block; */
+			padding-left: 10px;
+		}
+		
+		.station-url::after {
+			content: 'Press enter to save';
+			/* position: absolute; */
+			color: #263238;
+			bottom: -21px;
+			/* left: 0; */
+			font-size: 10px;
+			font-weight: 200;
+			opacity: 0;
+			transition: opacity .2s;
+			/* display: block; */
+			padding-left: 10px;
+		}
+
+		.channel-name:focus::after {
+			opacity: 0.6;
+		}
+		
+		.station-name:focus::after {
+			opacity: 1;
+		}
+		
+		.station-url:focus::after {
+			opacity: 1;
 		}
 
 		.variable-block {
@@ -685,17 +763,20 @@
 
 
 	<script>
-		let user_collection_url = "user_url";
-		// let user_collection_url = "https://learn.api.stdlib.com/test-radio@dev/";
-		console.log('user_collection_url:', user_collection_url);
+		// let user_collection_url = "user_url";
+		let user_collection_url = "https://learn.api.stdlib.com/test-radio@dev/";
+		// console.log('user_collection_url:', user_collection_url);
 	</script>
 	<script>
 		function initMaterialize() {
 			// document.addEventListener('DOMContentLoaded', function () {
-			var elems = document.querySelectorAll('.modal');
-			var instances = M.Modal.init(elems, {
+			let elems = document.querySelectorAll('.modal');
+			let instances = M.Modal.init(elems, {
 				onOpenStart: modalOpen
 			});
+
+			channelRenameListener();
+			stationRenameListener();
 		}
 
 		const empty_state_html = `
@@ -871,7 +952,7 @@
 				let item_txt = (new_channel.items.length > 1) ? 'stations' : 'station';
 				let toast_msg = `${channel_name} saved with ${new_channel.items.length} ${item_txt}`;
 
-				console.log('add channel:', new_channel);
+				// console.log('add channel:', new_channel);
 
 				saveStations(collection.list, toast_msg);
 
@@ -1050,8 +1131,8 @@
 			let station_item = createNode('div', ['row', 'station-item', 'valign-wrapper']);
 			station_item.innerHTML = `
 		<div class="col s10">
-			<span class="station-name">${station_name}</span><br>
-			<span class="station-url grey-text">${station_url}</span>
+			<span contenteditable=true class="station-name">${station_name}</span><br>
+			<span contenteditable=true class="station-url grey-text">${station_url}</span>
 		</div>
 		<div class="col s2">78
 			<a href="#"><i class="tiny material-icons right">close</i></a>
@@ -1060,27 +1141,75 @@
 			channel_div.appendChild(station_item);
 		}
 
-		function channelRenameListener(channel_names) {
-			channel_names.forEach(channel_name => {
-				channel_name.addEventListener('keypress', e => {
-					// Listen for submit
+		function channelRenameListener() {
+
+			let channels = document.querySelectorAll('.channel-name');
+			let updateflag = false;
+
+			channels.forEach(channel => {
+				channel.addEventListener('keydown', async e => {
 					if (e.keyCode == 13) {
-						console.log(channel_name);
 						e.preventDefault();
-						e.target.blur();
+						let channel_container = e.target.parentNode.parentNode.parentNode.parentNode;
+						updateflag = true;
+						let index = channel_container.getAttribute('data-index');
+						collection.list[index].name = e.target.textContent;
 					}
-				});
-				channel_name.addEventListener('blur', e => {
-					e.preventDefault();
-					// Listen for submit
-					console.log(e.target.textContent);
-					let index = e.target.getAttribute('data-index');
-					// Update channel list
-					items_list[index].name = e.target.textContent;
-					saveStations(items_list);
-					console.log(items_list);
-				});
-			});
+
+					if (updateflag) {
+						await saveStations(collection.list, 'Channel renamed');
+					}
+				})
+			})
+		}
+
+		function stationRenameListener() {
+
+			let station_names = document.querySelectorAll('.station-name');
+			let station_urls = document.querySelectorAll('.station-url');
+			let updateflag = false;
+
+			station_names.forEach(name => {
+				name.addEventListener('keydown', async e => {
+					console.log(e.keyCode);
+
+					if (e.keyCode == 13) {
+						e.preventDefault();
+						let name_container = e.target.parentNode.parentNode;
+						let channel_container = e.target.parentNode.parentNode.parentNode.parentNode;
+						updateflag = true;
+						let station_index = name_container.getAttribute('data-index');
+						let channel_index = channel_container.getAttribute('data-index');
+						console.log(station_index, channel_index);
+						collection.list[channel_index].items[station_index].name = e.target.textContent;
+					}
+
+					if (updateflag) {
+						await saveStations(collection.list, 'Station renamed');
+					}
+				})
+			})
+
+			station_urls.forEach(url => {
+				url.addEventListener('keydown', async e => {
+					console.log(e.keyCode);
+
+					if (e.keyCode == 13) {
+						e.preventDefault();
+						let url_container = e.target.parentNode.parentNode;
+						let channel_container = e.target.parentNode.parentNode.parentNode.parentNode;
+						updateflag = true;
+						let station_index = url_container.getAttribute('data-index');
+						let channel_index = channel_container.getAttribute('data-index');
+						console.log(station_index, channel_index);
+						collection.list[channel_index].items[station_index].url = e.target.textContent;
+					}
+
+					if (updateflag) {
+						await saveStations(collection.list, 'Station URL changed');
+					}
+				})
+			})
 		}
 
 		function getItems() {
@@ -1105,12 +1234,12 @@
 					// Listen to Channel Name Edit
 					let channel_names = document.querySelectorAll('.channel-name');
 					// console.log(channel_names);
-					channelRenameListener(channel_names);
+					// channelRenameListener();
 
 				})
 		}
 
-		function saveStations(channels, toast_msg) {
+		async function saveStations(channels, toast_msg) {
 			let data = {
 				settings: collection.settings || {},
 				resume: collection.resume || {},
@@ -1123,7 +1252,7 @@
 			})
 				.then(result => {
 					if (result.status == 200) {
-						console.log('result', result.status, collection.list);
+						// console.log('result', result.status, collection.list);
 						showToast('check', toast_msg);
 						renderChannels(collection.list, initMaterialize);
 						new_channel = {
@@ -1246,9 +1375,9 @@
 			station_item.setAttribute('data-index', index);
 			station_item.innerHTML = `
 		<div class="col s11">
-			<span class="station-name">${station.name}</span>
+			<span contenteditable=true class="station-name">${station.name}</span>
 			<span class="station-status-${station.status}">${station.status}</span><br>
-			<span class="station-url">${station.url}</span>
+			<span contenteditable=true class="station-url">${station.url}</span>
 		</div>
 
 		<div class="col s1">
@@ -1262,9 +1391,9 @@
 
 			return `
 		<div class="col s11">
-			<span class="station-name">${station.name}</span>
+			<span contenteditable=true class="station-name">${station.name}</span>
 			<span class="station-status-${station.status}">${station.status}</span><br>
-			<span class="station-url">${station.url}</span>
+			<span contenteditable=true class="station-url">${station.url}</span>
 		</div>
 	
 		<div class="col s1">
@@ -1283,7 +1412,7 @@
 						<i class="material-icons blue-grey-text text-lighten-3">library_music</i>
 					</div>
 					<div class="col s10">
-						<h5 class="channel-name" contenteditable="false">${channel_name}</h5>
+						<h5 class="channel-name" contenteditable="true">${channel_name}</h5>
 					</div>
 					<div class="channel-shuffle">
 					</div>
