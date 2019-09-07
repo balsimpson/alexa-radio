@@ -11,6 +11,7 @@ You can also ask Alexa for a channel or a station by name. If you say Alexa, ask
 - Support for audiobooks. If the streaming link is an MP3 file, progress is saved. If your channel contains multiple MP3 files, the skill wil queue up the next file automatically (If shuffle is off)
 - Alexa Interaction model updated to use a custom slot. You can search by channel or station name
 
+Check out the web page demo [here](https://balsimpson.github.io/alexa-radio/).
 
 ## Usage
 
