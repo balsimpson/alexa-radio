@@ -71,6 +71,8 @@
 
 		.channel-name {
 			position: relative;
+			text-align: left;
+			margin-left: 10px;
 			font-size: 24px;
 			font-weight: 400;
 			color: lightgray;
@@ -81,7 +83,7 @@
 			position: relative;
 			opacity: 0.8;
 		}
-		
+
 		.station-url {
 			position: relative;
 			opacity: 0.8;
@@ -96,7 +98,7 @@
 			outline: 0;
 			opacity: 1;
 		}
-		
+
 		.station-url:focus {
 			outline: 0;
 			opacity: 1;
@@ -127,7 +129,7 @@
 			/* display: block; */
 			padding-left: 10px;
 		}
-		
+
 		.station-url::after {
 			content: 'Press enter to save';
 			/* position: absolute; */
@@ -145,11 +147,11 @@
 		.channel-name:focus::after {
 			opacity: 0.6;
 		}
-		
+
 		.station-name:focus::after {
 			opacity: 1;
 		}
-		
+
 		.station-url:focus::after {
 			opacity: 1;
 		}
@@ -314,7 +316,7 @@
 
 		.channel-item {
 			background-color: #455a64;
-			text-align: left;
+			text-align: center;
 			padding: 10px 6px;
 			border-radius: 6px;
 		}
@@ -712,7 +714,7 @@
 							<input id="modal-station-name" placeholder="Station Name" class="white-text validate"
 								type="text">
 						</div>
-						<div class="col s1" style="padding: 8px 6px;">
+						<div class="col s1">
 							<a id="modal-add-station-btn" class="btn-small btn-floating orange accent-1"" href=" #"><i
 									class="material-icons black-text right">add</i></a>
 						</div>
@@ -776,6 +778,7 @@
 			});
 
 			channelRenameListener();
+			channelShuffleListener();
 			stationRenameListener();
 		}
 
@@ -950,7 +953,7 @@
 				el(`#shuffle-channel`).checked = false;
 
 				let item_txt = (new_channel.items.length > 1) ? 'stations' : 'station';
-				let toast_msg = `${channel_name} saved with ${new_channel.items.length} ${item_txt}`;
+				let toast_msg = `${channel_name} saved with ${new_channel.items.length} ${item_txt}. Click on the channel or station name to rename it.`;
 
 				// console.log('add channel:', new_channel);
 
@@ -1065,11 +1068,11 @@
 
 		async function deleteStation(e) {
 
-			e.preventDefault();
 
 			let items_list = collection.list;
 			let delete_btn = e.target.parentNode;
 			if (delete_btn.classList.contains('delete-station-btn')) {
+				e.preventDefault();
 				let station_item = delete_btn.parentNode.parentNode;
 				let station_index = station_item.getAttribute('data-index');
 				let channel_item = station_item.parentNode.parentNode;
@@ -1158,6 +1161,37 @@
 
 					if (updateflag) {
 						await saveStations(collection.list, 'Channel renamed');
+					}
+				})
+			})
+		}
+
+		function channelShuffleListener() {
+
+			let channel_shuffles = document.querySelectorAll('.channel-shuffle-status');
+			let updateflag = false;
+
+			channel_shuffles.forEach(shuffle => {
+				shuffle.addEventListener('change', async e => {
+
+					e.preventDefault();
+					let channel_container = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
+					
+					let index = channel_container.getAttribute('data-index');
+
+					let channel_name = collection.list[index].name;
+					let shouldShuffle = e.target.checked;
+
+					updateflag = true;
+					collection.list[index].shuffle = shouldShuffle;
+
+					if (updateflag) {
+
+						let toast_msg = `${channel_name} shuffle turned off`
+						if (shouldShuffle) {
+							toast_msg = `${channel_name} shuffle turned on`
+						}
+						await saveStations(collection.list, toast_msg);
 					}
 				})
 			})
@@ -1348,7 +1382,7 @@
 					let channel_div = createNode('div', ['container', 'channel-item', 'card']);
 					channel_div.id = sanitized(channel.name);
 					channel_div.setAttribute('data-index', i);
-					channel_div.innerHTML = channelHTML(channels, channel.name);
+					channel_div.innerHTML = channelHTML(channels, channel);
 
 					let items = createNode('div', ['stations-container']);
 
@@ -1402,20 +1436,37 @@
 	`;
 		}
 
-		function channelHTML(collection, channel_name) {
+		function channelHTML(collection, channel) {
 
-			let sanitized_name = sanitized(channel_name);
+			let shuffle = channel.shuffle;
+
+			let shuffleHTML = `<input class="channel-shuffle-status" type="checkbox">`;
+
+			if (shuffle) {
+				shuffleHTML = `<input class="channel-shuffle-status" checked type="checkbox">`
+			}
+
+			let sanitized_name = sanitized(channel.name);
 			return `
 			<div class="channel-item-header">
 				<form class="row valign-wrapper">
 					<div class="col s1 left" style="padding-top: 10px;">
 						<i class="material-icons blue-grey-text text-lighten-3">library_music</i>
 					</div>
-					<div class="col s10">
-						<h5 class="channel-name" contenteditable="true">${channel_name}</h5>
+					<div class="col s7">
+						<h5 class="channel-name" contenteditable="true">${channel.name}</h5>
 					</div>
+					<div class="col s3">
 					<div class="channel-shuffle">
+						<div class="switch">
+							<label>
+								Shuffle
+								${shuffleHTML}
+							<span class="lever"></span>
+							</label>
+						</div>
 					</div>
+				</div>
 					<div class="col s1">
 						<a onclick="showAddItem('${sanitized_name}', event)" class="add-station-btn" href="#"><i
 								id="${sanitized_name}-show-add" class="material-icons right">add</i></a>
@@ -1431,7 +1482,7 @@
 						<input id="${sanitized_name}-station-name" placeholder="Station Name" type="text" class="validate white-text">
 					</div>
 					<div class="col s1 right-align">
-						<a onclick="collectionAddItem('${channel_name}', event)" class="btn-floating btn-small station-quick-add-btn orange accent-1 "><i class="material-icons black-text">add</i></a>
+						<a onclick="collectionAddItem('${channel.name}', event)" class="btn-floating btn-small station-quick-add-btn orange accent-1 "><i class="material-icons black-text">add</i></a>
 					</div>
 				</form>
 			</div>
