@@ -1,4 +1,4 @@
-const verifier = require('alexa-verifier');
+// const verifier = require('alexa-verifier');
 
 const db = require('lib')({ token: process.env.STDLIB_SECRET_TOKEN }).utils.kv;
 
