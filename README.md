@@ -1,3 +1,5 @@
+### This code lets you publish the skill to Alexa. An added dependency is an NPM package called `alexa-verifier`
+
 # Create an Alexa Radio Skill in 5 Minutes
 
 Create your own Alexa Radio Skill with your favourite streaming stations. Once deployed, you can say `Alexa, open radio` and Alexa will start streaming your custom streaming station. 
