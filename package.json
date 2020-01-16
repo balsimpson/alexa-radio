@@ -8,5 +8,15 @@
     "lib": "^4.0.2",
     "fs": "^0.0.1-security",
     "alexa-verifier":"^2.0.1"
+  },
+  "stdlib": {
+    "build": "faaslang",
+    "name": "tinkr/test-radio",
+    "timeout": 10000,
+    "publish": true,
+    "personalize": {
+      "keys": ["STDLIB_SECRET_TOKEN"],
+      "user": []
+    }
   }
 }
