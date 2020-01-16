@@ -125,8 +125,8 @@ Alexa can only play `https` streaming links. But André pointed out this stackov
 >I created this file with only one line as content: http://lokruf.onlinestream.de/listen1.m3u
 >I used this gist https link in my skill for radio streaming instead the original http one
 >an other example I had:
-for this stream http://64.71.79.181:5238/stream
-I created: https://gist.github.com/timguy/cc67df71e36e0698cf81084ce9f3488b
-and used the raw link in my skill: https://gist.githubusercontent.com/timguy/cc67df71e36e0698cf81084ce9f3488b/raw/37c995873528f85c311293dd9f3136657e98c730/radioroberto.m3u
+>for this stream http://64.71.79.181:5238/stream
+>I created: https://gist.github.com/timguy/cc67df71e36e0698cf81084ce9f3488b
+>and used the raw link in my skill: https://gist.githubusercontent.com/timguy/cc67df71e36e0698cf81084ce9f3488b/raw/37c995873528f85c311293dd9f3136657e98c730/radioroberto.m3u
 
 
