@@ -1,3 +1,5 @@
+### This code lets you publish the skill to Alexa. An added dependency is an NPM package called `alexa-verifier`
+
 # Create an Alexa Radio Skill in 5 Minutes
 
 Create your own Alexa Radio Skill with your favourite streaming stations. Once deployed, you can say `Alexa, open radio` and Alexa will start streaming your custom streaming station. 
@@ -112,5 +114,19 @@ You can cutomise Alexa responses by clicking the gear icon on the top right of t
 >Use SSML if you want, to give it more personality.
 
 ![Screenshot 3](./data/tutorial/webpage3.png?raw=true "Screenshot 2")
+
+### HTTP Links
+Alexa can only play `https` streaming links. But André pointed out this stackoverflow answer by [timguy](https://stackoverflow.com/users/3276902/timguy).
+
+>I had the same issue: You can create a m3u file which is reachable via https. You could do via Amazon S3 bucket or more simple via github gist.
+>I did the following:
+>
+>http://lokruf.onlinestream.de/listen1.m3u does not have https
+>I created this file with only one line as content: http://lokruf.onlinestream.de/listen1.m3u
+>I used this gist https link in my skill for radio streaming instead the original http one
+>an other example I had:
+>for this stream http://64.71.79.181:5238/stream
+>I created: https://gist.github.com/timguy/cc67df71e36e0698cf81084ce9f3488b
+>and used the raw link in my skill: https://gist.githubusercontent.com/timguy/cc67df71e36e0698cf81084ce9f3488b/raw/37c995873528f85c311293dd9f3136657e98c730/radioroberto.m3u
 
 

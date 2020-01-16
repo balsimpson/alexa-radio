@@ -1,4 +1,4 @@
-// const verifier = require('alexa-verifier');
+const verifier = require('alexa-verifier');
 
 const db = require('lib')({ token: process.env.STDLIB_SECRET_TOKEN }).utils.kv;
 
@@ -736,6 +736,12 @@ const randomItem = (arrayOfItems) => {
 module.exports = async (context) => {
 
   try {
+
+    await verifier(
+      context.http.headers.signaturecertchainurl,
+      context.http.headers.signature,
+      context.http.body
+    )
 
     let identifier = context.service.identifier;
     let user = identifier.split('.')[0];

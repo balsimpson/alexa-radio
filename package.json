@@ -6,6 +6,7 @@
   "main": "functions/__main__.js",
   "dependencies": {
     "lib": "^4.0.2",
-    "fs": "^0.0.1-security"
+    "fs": "^0.0.1-security",
+    "alexa-verifier":"^2.0.1"
   }
 }
