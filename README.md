@@ -1,4 +1,4 @@
-### This code lets you publish the skill to Alexa. An added dependency is an NPM package called `alexa-verifier`
+#### Updated: This code lets you publish the skill to Alexa. 
 
 # Create an Alexa Radio Skill in 5 Minutes
 
