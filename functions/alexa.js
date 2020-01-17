@@ -642,11 +642,10 @@ function speech(response_type) {
         response = response ? response : 'Next up is - ';
         break;
       case 'help':
-
         break;
       case 'error':
         response = randomItem(collection.settings.responses.error_playing);
-        response = response ? response : '';
+        response = response ? response : 'Sorry, something went wrong.';
         break;
 
       default:
