@@ -203,7 +203,8 @@ const LaunchRequestIntentHandler = async (requestEnvelope) => {
 
   let session_attributes = {};
 
-  let station = await getStation();
+  // console.log(collection.lisy.length);
+  let station = await getStation('', collection);
 
   if (station) {
     response = stationResponse(station, now_playing);
@@ -223,6 +224,7 @@ const IntentRequestHandler = async (requestEnvelope) => {
   let intent = requestEnvelope.request.intent;
   let intentName = getIntentName(requestEnvelope);
 
+  console.log('intentName:', intentName);
   let response;
 
   switch (intentName) {
@@ -231,7 +233,10 @@ const IntentRequestHandler = async (requestEnvelope) => {
       break;
 
     case 'StopIntent':
-      // console.log(`stop intent`);
+      response = StopIntentHandler(requestEnvelope);
+      break;
+
+    case 'PauseIntent':
       response = StopIntentHandler(requestEnvelope);
       break;
 
@@ -239,11 +244,17 @@ const IntentRequestHandler = async (requestEnvelope) => {
       response = NextIntentHandler(requestEnvelope);
       break;
 
+    case 'ResumeIntent':
+      console.log('ResumeIntent:', intentName);
+      response = ResumeIntentHandler(requestEnvelope);
+      break;
+
     case 'HelpIntent':
       response = HelpIntentHandler(requestEnvelope);
       break;
 
     default:
+      console.log('default:', intentName);
       response = ErrorHandler();
       break;
   }
@@ -301,33 +312,96 @@ const StopIntentHandler = (requestEnvelope) => {
 
 const NextIntentHandler = async (requestEnvelope) => {
 
+  console.log('NextIntentHandler:');
   let response = {};
-  let next_playing = speech('next');
+  // let next_playing = speech('next');
+  try {
+    let token = requestEnvelope.context.AudioPlayer.token;
 
-  let token = requestEnvelope.context.AudioPlayer.token;
-  let current_station = token.split(':')[0];
-  let current_channel = token.split(':')[1];
+    if (collection && collection.list) {
+      if (token) {
+        let current_station = token.split(':')[0] || '';
+        let current_channel = token.split(':')[1] || '';
 
-  let getChannel = fuzzy(collection.list, 'name');
-  let channel = getChannel(current_channel);
+        let getChannel = fuzzy(collection.list, 'name');
+        let channel = getChannel(current_channel);
 
-  let station;
+        let station;
 
-  if (channel.length) {
-    station = pickStation(channel[0], 'next', current_station);
-    response = stationResponse(station, next_playing);
-  } else {
-    if (collection.list) {
-      channel = randomItem(collection.list);
-      station = randomItem(channel.items);
-      station.channel = channel.name;
-      response = stationResponse(station, next_playing);
+        if (channel.length > 0) {
+          station = pickStation(channel[0], 'next', current_station);
+          response = stationResponse(station, 'next up is ');
+        } else {
+          console.log('no channels:');
+          response.speak = Alexa.speak(`Go to the web page to add a channel.`);
+        }
+        return Alexa.getResponse(response);
+      } else {
+        let station = await getStation();
+        if (station) {
+          response = stationResponse(station, 'next up is ');
+        } else {
+          response.speak = Alexa.speak(`Go to the web page to add a channel.`);
+        }
+        return Alexa.getResponse(response);
+      }
     } else {
-      response.speak = Alexa.speak(`You don't have any saved channels. Go to the web page to add a channel.`); 
+      response.speak = Alexa.speak(`Go to the web page to add a channel.`);
+      return Alexa.getResponse(response);
     }
+  } catch (error) {
+    console.log('next intent:', error);
   }
 
-  return Alexa.getResponse(response);
+  // if (collection.list) {
+  //   let getChannel = fuzzy(collection.list, 'name');
+  //   let channel = getChannel(current_channel);
+
+  //   if (channel.length) {
+
+  //   } else {
+  //     channel = randomItem(collection.list);
+  //     station = randomItem(channel.items);
+  //     station.channel = channel.name;
+  //     response = stationResponse(station, next_playing);
+  //   }
+  // } else {
+
+  // }
+
+}
+
+const ResumeIntentHandler = async (requestEnvelope) => {
+
+  console.log('ResumeIntentHandler:');
+  let response = {};
+  // let next_playing = speech('next');
+  try {
+
+    let channel;
+    let station;
+
+    if (collection && collection.list) {
+      if (collection && collection.resume && collection.resume.name) {
+        station = collection.resume;
+        response = stationResponse(station, 'resuming ');
+        console.log('res:', response);
+      } // No resume
+      else {
+        channel = randomItem(collection.list);
+        station = pickStation(channel);
+        station.channel = channel.name;
+        response = stationResponse(station, 'now playing ');
+      }
+    } else {
+      response = Alexa.speak("You don't have any saved channels. Go to the web page to add a channel.");
+    }
+    return Alexa.getResponse(response);
+
+  } catch (error) {
+    console.log('resume intent:', error);
+  }
+
 }
 
 const HelpIntentHandler = () => {
@@ -412,34 +486,44 @@ const AudioPlayerEventHandler = async (requestEnvelope) => {
   return Alexa.getResponse(response);
 }
 
-const getStation = async (query) => {
+const getStation = async (query, collectionObj) => {
   try {
 
     let channel;
     let station;
 
-    if (query) {
-      let searchByChannel = fuzzy(collection.list, 'name');
-      channel = searchByChannel(query);
+    if (collectionObj && collectionObj.list) {
+      if (query) {
 
-      if (channel.length) {
-        station = pickStation(channel[0]);
-        station.channel = channel[0].name;
+        let searchByChannel = fuzzy(collectionObj.list, 'name');
+        channel = searchByChannel(query);
+
+        if (channel.length) {
+          station = pickStation(channel[0]);
+          station.channel = channel[0].name;
+        } else {
+          station = searchByStation(query);
+        }
+
+        return station;
+
       } else {
-        station = searchByStation(query);
+
+        // check collectionObj.resume
+        if (collectionObj && collectionObj.resume && collectionObj.resume.name) {
+          station = collectionObj.resume;
+        } // No resume
+        else {
+          channel = randomItem(collectionObj.list);
+          station = pickStation(channel);
+          station.channel = channel.name;
+        }
+
+        return station;
       }
     } else {
-      // check collection.resume
-      if (collection.resume && collection.resume.name) {
-        station = collection.resume;
-      } // No resume
-      else {
-        channel = randomItem(collection.list);
-        station = pickStation(channel);
-        station.channel = channel.name;
-      }
+      return station;
     }
-    return station;
 
     function searchByStation(query) {
       let found_stations = [];
@@ -464,56 +548,60 @@ const getStation = async (query) => {
 
 function pickStation(channel, type, current_station) {
   try {
-    let other_stations = [];
     let station;
+    if (channel) {
+      let other_stations = [];
 
-    if (type == 'next') {
+      if (type == 'next') {
 
-      if (channel.shuffle) {
-        for (const key of channel.items) {
-          if (key.name != current_station) {
-            other_stations.push(key);
+        if (channel.shuffle) {
+          for (const key of channel.items) {
+            if (key.name != current_station) {
+              other_stations.push(key);
+            }
           }
-        }
-        station = randomItem(other_stations);
-        station.channel = channel.name;
-      } else {
+          station = randomItem(other_stations);
+          station.channel = channel.name;
+        } else {
 
-        for (let i = 0; i < channel.items.length; i++) {
-          const item = channel.items[i];
+          for (let i = 0; i < channel.items.length; i++) {
+            const item = channel.items[i];
 
-          if (item.name == current_station) {
-            let next_item = channel.items[i + 1] || '';
-            next_item.channel = channel.name;
+            if (item.name == current_station) {
+              let next_item = channel.items[i + 1] || '';
+              next_item.channel = channel.name;
 
-            if (next_item) {
-              station = next_item;
-            } else {
-              station = channel.items[0];
-              station.channel = channel.name;
+              if (next_item) {
+                station = next_item;
+              } else {
+                station = channel.items[0];
+                station.channel = channel.name;
+              }
             }
           }
         }
-      }
 
-      return station;
-    } else {
-      if (channel.progress) {
-        station = channel.progress;
-        station.channel = channel.name;
         return station;
       } else {
-        if (channel.shuffle) {
-          station = randomItem(channel.items);
+        if (channel.progress) {
+          station = channel.progress;
           station.channel = channel.name;
           return station;
         } else {
+          if (channel.shuffle) {
+            station = randomItem(channel.items);
+            station.channel = channel.name;
+            return station;
+          } else {
 
-          station = channel.items[0];
-          station.channel = channel.name;
-          return station;
+            station = channel.items[0];
+            station.channel = channel.name;
+            return station;
+          }
         }
       }
+    } else {
+      return station;
     }
 
   } catch (error) {
@@ -614,20 +702,8 @@ const getIntentName = (requestEnvelope) => {
 
   let intentName = requestEnvelope.request.intent.name || '';
 
-  if (intentName === 'AMAZON.CancelIntent' ||
-    intentName ===
-    'AMAZON.StopIntent' ||
-    intentName ===
-    'AMAZON.PauseIntent') {
-    intentName = 'StopIntent';
-  }
-
-  if (intentName === 'AMAZON.NextIntent') {
-    intentName = 'NextIntent';
-  }
-
-  if (intentName === 'AMAZON.HelpIntent') {
-    intentName = 'HelpIntent';
+  if (intentName) {
+    intentName = intentName.split('.')[1];
   }
 
   return intentName;
@@ -758,9 +834,11 @@ module.exports = async (context) => {
     });
 
     let requestEnvelope = context.params;
+    // console.log("requestEnvelope", requestEnvelope);
     let requestType = requestEnvelope.request.type;
-    // console.log("TCL: requestType", requestType)
+
     let intent = requestEnvelope.request.intent || {};
+    console.log("intent", intent);
     let response = {};
 
     // console.log("requestType", requestType);
@@ -775,6 +853,8 @@ module.exports = async (context) => {
     } else {
       response = ErrorHandler(requestEnvelope);
     }
+
+    // console.log("response", response);
     return response;
 
   } catch (error) {
