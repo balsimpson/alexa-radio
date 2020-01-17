@@ -317,10 +317,14 @@ const NextIntentHandler = async (requestEnvelope) => {
     station = pickStation(channel[0], 'next', current_station);
     response = stationResponse(station, next_playing);
   } else {
-    channel = randomItem(collection.list);
-    station = randomItem(channel.items);
-    station.channel = channel.name;
-    response = stationResponse(station, next_playing);
+    if (collection.list) {
+      channel = randomItem(collection.list);
+      station = randomItem(channel.items);
+      station.channel = channel.name;
+      response = stationResponse(station, next_playing);
+    } else {
+      response.speak = Alexa.speak(`You don't have any saved channels. Go to the web page to add a channel.`); 
+    }
   }
 
   return Alexa.getResponse(response);
