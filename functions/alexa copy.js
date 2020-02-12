@@ -3,6 +3,7 @@ const verifier = require('alexa-verifier');
 const db = require('lib')({ token: process.env.STDLIB_SECRET_TOKEN }).utils.kv;
 
 // Global variable of collection
+let collection;
 let user_url = '';
 
 class AlexaResponses {
@@ -163,118 +164,16 @@ class AlexaResponses {
   }
 }
 
-class Collection {
-  constructor(data) {
-    this.list = data.list || [];
-    this.resume = data.resume || {};
-    this.settings = data.settings || this.defaultSettings();
-  }
-
-  defaultSettings() {
-    let default_settings = {
-      responses: {
-        now_playing: [
-          'This is'
-        ],
-        help_playing: [
-          'Tell me a station name to play'
-        ],
-        next_playing: [
-          'Next up is'
-        ],
-        stop_playing: [
-          'Goodbye'
-        ],
-        error_playing: [
-          'Somethng went wrong'
-        ]
-      }
-    }
-
-    return default_settings;
-  }
-
-  get(query = '') {
-    let channelSearch = fuzzy(this.list, 'name');
-    let [result] = channelSearch(query);
-
-    if (query) {
-      if (result) {
-        // check progress
-        if (result.progress) {
-          result = result.progress;
-        } else {
-          if (result.shuffle) {
-            // random item
-            result = randomItem(result.items);
-          } else {
-            // first item
-            result = result.items[0];
-          }
-        }
-      } else {
-        for (const channel of this.list) {
-          let stationSearch = fuzzy(channel.items, 'name');
-          [result] = stationSearch(query);
-          // return result;
-        }
-      }
-    } else {
-      // check resume
-      if (this.resume) {
-        result = this.resume;
-      }
-    }
-
-    if (result) {
-      result.token = `${result.name}:${result.channel}`;
-    }
-
-    return result;
-  }
-
-  next(token) {
-    let channelSearch = fuzzy(this.list, 'name');
-    let [channel] = channelSearch(token.split(':')[1]);
-    let item;
-
-    channel.items.map((_item, index) => {
-      if (_item.name == token.split(':')[0]) {
-        // check shuffle
-        if (channel.shuffle) {
-          item = randomItem(channel.items);
-        } else {
-          item = channel.items[index + 1] ? channel.items[index + 1] : channel.items[0];
-        }
-      }
-    })
-
-    return item;
-  }
-
-  response(item) {
-    let _response = {
-      name: item.name,
-      channel: item.channel,
-      url: item.url,
-      token: item.token,
-      progress: item.progress,
-
-    }
-
-    return response;
-  }
-}
-
 const Alexa = new AlexaResponses();
 
 const LaunchRequestIntentHandler = async (requestEnvelope) => {
 
   // Alexa custom responses
   let now_playing = speech('playing');
-  let station = collection.get();
+  let station = await getStation('', collection);
 
   if (station) {
+    station.token = `${station.name}:${station.channel}`;
     Alexa
       .speak(`${now_playing} - ${station.name}, from ${station.channel}.`)
       .play(station.url, station.progress, station.token)
@@ -340,9 +239,10 @@ const PlayRadioIntentHandler = async (requestEnvelope) => {
     let slot = getSlotValues(requestEnvelope);
     console.log('PlayRadioIntentHandler search term:', slot.station);
 
-    let station = collection.get(slot.station);
+    let station = await getStation(slot.station);
 
     if (station) {
+      station.token = `${station.name}:${station.channel}`;
       Alexa
         .speak(`${now_playing} - ${station.name}, from ${station.channel}.`)
         .play(station.url, station.progress, station.token)
@@ -363,13 +263,13 @@ const PlayRadioIntentHandler = async (requestEnvelope) => {
 }
 
 const StopIntentHandler = (requestEnvelope) => {
-
+  
   let stop_playing = speech('stop');
 
   Alexa
     .speak(stop_playing)
     .stop();
-
+  
   return Alexa;
 }
 
@@ -875,14 +775,6 @@ const randomItem = (arrayOfItems) => {
 
 };
 
-function getUserURL(context) {
-  let identifier = context.service.identifier;
-  let user = identifier.split('.')[0];
-  let service = identifier.split('.')[1].replace(/\[|\]/gmi, '');
-
-  return `https://${user}.api.stdlib.com/${service}/`;
-}
-
 module.exports = async (context) => {
 
   try {
@@ -893,20 +785,22 @@ module.exports = async (context) => {
       context.http.body
     )
 
-    user_url = getUserURL(context);
+    let identifier = context.service.identifier;
+    let user = identifier.split('.')[0];
+    let service = identifier.split('.')[1].replace(/\[|\]/gmi, '');
 
-    // get saved data
-    let db = await db.get({
+    user_url = `https://${user}.api.stdlib.com/${service}/`;
+
+    collection = await db.get({
       key: 'channels'
     });
 
-    const collection = new Collection(db);
-
     let requestEnvelope = context.params;
+    // console.log("requestEnvelope", requestEnvelope);
     let requestType = requestEnvelope.request.type;
+
     let intent = requestEnvelope.request.intent || {};
     console.log("intent", intent);
-
     let response = {};
 
     // console.log("requestType", requestType);
@@ -921,6 +815,7 @@ module.exports = async (context) => {
     } else {
       response = ErrorHandler(requestEnvelope);
     }
+
     // console.log("response", response);
     return response;
 
