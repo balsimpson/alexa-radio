@@ -487,12 +487,11 @@ const SessionEndedRequestHandler = (requestEnvelope) => {
 }
 
 const ErrorHandler = () => {
-  let response = {};
   let error_playing = speech('error');
 
-  response.speak = Alexa.speak(error_playing);
-  response.prompt = Alexa.prompt('What channel or station do you want to play?');
-  return Alexa.getResponse(response);
+  Alexa.speak(error_playing);
+  Alexa.prompt('What channel or station do you want to play?');
+  return Alexa;
 }
 
 const AudioPlayerEventHandler = async (requestEnvelope) => {
