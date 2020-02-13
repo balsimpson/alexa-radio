@@ -165,9 +165,15 @@ class AlexaResponses {
 
 class Collection {
   constructor(data) {
-    this.list = data.list || [];
-    this.resume = data.resume || {};
-    this.settings = data.settings || this.defaultSettings();
+    if (data) {
+      this.list = data.list || [];
+      this.resume = data.resume || {};
+      this.settings = data.settings || this.defaultSettings();
+    } else {
+      this.list = [];
+      this.resume = {};
+      this.settings = this.defaultSettings();
+    }
   }
 
   defaultSettings() {
@@ -226,7 +232,9 @@ class Collection {
       }
     }
 
-    if (result) {
+    console.log(result)
+
+    if (result.name) {
       result.token = `${result.name}:${result.channel}`;
     }
 
@@ -238,17 +246,20 @@ class Collection {
     let [channel] = channelSearch(token.split(':')[1]);
     let item;
 
-    channel.items.map((_item, index) => {
-      if (_item.name == token.split(':')[0]) {
-        // check shuffle
-        if (channel.shuffle) {
-          item = randomItem(channel.items);
-        } else {
-          item = channel.items[index + 1] ? channel.items[index + 1] : channel.items[0];
+    if (channel) {
+      channel.items.map((_item, index) => {
+        if (_item.name == token.split(':')[0]) {
+          // check shuffle
+          if (channel.shuffle) {
+            item = randomItem(channel.items);
+          } else {
+            item = channel.items[index + 1] ? channel.items[index + 1] : channel.items[0];
+          }
         }
-      }
-    })
+      })
+    }
 
+    console.log(item);
     return item;
   }
 
@@ -882,47 +893,51 @@ function getUserURL(context) {
   return `https://${user}.api.stdlib.com/${service}/`;
 }
 
+const collection = new Collection();
 module.exports = async (context) => {
 
   try {
 
-    await verifier(
-      context.http.headers.signaturecertchainurl,
-      context.http.headers.signature,
-      context.http.body
-    )
+    // await verifier(
+    // context.http.headers.signaturecertchainurl,
+    // context.http.headers.signature,
+    // context.http.body
+    // )
 
     user_url = getUserURL(context);
 
     // get saved data
-    let db = await db.get({
+    let saved_data = await db.get({
       key: 'channels'
     });
 
-    const collection = new Collection(db);
-
     let requestEnvelope = context.params;
-    let requestType = requestEnvelope.request.type;
-    let intent = requestEnvelope.request.intent || {};
-    console.log("intent", intent);
 
-    let response = {};
+    if (requestEnvelope.request) {
+      let requestType = requestEnvelope.request.type;
+      let intent = requestEnvelope.request.intent || {};
+      console.log("intent", intent);
 
-    // console.log("requestType", requestType);
-    if (requestType === 'LaunchRequest') {
-      response = await LaunchRequestIntentHandler(requestEnvelope);
-    } else if (requestType.startsWith("AudioPlayer.")) {
-      response = await AudioPlayerEventHandler(requestEnvelope);
-    } else if (requestType === 'IntentRequest') {
-      response = await IntentRequestHandler(requestEnvelope);
-    } else if (requestType === 'SessionEndedRequest') {
-      response = SessionEndedRequestHandler(requestEnvelope);
+      let response = {};
+
+      // console.log("requestType", requestType);
+      if (requestType === 'LaunchRequest') {
+        response = await LaunchRequestIntentHandler(requestEnvelope);
+      } else if (requestType.startsWith("AudioPlayer.")) {
+        response = await AudioPlayerEventHandler(requestEnvelope);
+      } else if (requestType === 'IntentRequest') {
+        response = await IntentRequestHandler(requestEnvelope);
+      } else if (requestType === 'SessionEndedRequest') {
+        response = SessionEndedRequestHandler(requestEnvelope);
+      } else {
+        response = ErrorHandler(requestEnvelope);
+      }
+      // console.log("response", response);
+      return response;
     } else {
-      response = ErrorHandler(requestEnvelope);
+      let response = ErrorHandler(context.params);
+      return response;
     }
-    // console.log("response", response);
-    return response;
-
   } catch (error) {
     console.log('Error:', error);
     let response = ErrorHandler(context.params);
