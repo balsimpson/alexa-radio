@@ -212,12 +212,14 @@ class Collection {
   get(query = '') {
 
     let result;
+    let channel_name;
     // if there is at least one channel
     if (this.list.length > 0) {
       let channelSearch = fuzzy(this.list, 'name');
       [result] = channelSearch(query);
       // channel search
       if (query && result) {
+        channel_name = result.name;
         // check progress
         if (result.progress) {
           result = result.progress;
@@ -225,6 +227,7 @@ class Collection {
           if (result.shuffle) {
             // random item
             result = randomItem(result.items);
+            result.channel = result.name;
           } else {
             // first item
             result = result.items[0];
@@ -232,8 +235,10 @@ class Collection {
         }
 
         if (result.name) {
+          result.channel = channel_name || '';
           result.token = `${result.name}:${result.channel}`;
         }
+
         return result;
       }
       // station search
