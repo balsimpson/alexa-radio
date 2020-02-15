@@ -4,11 +4,10 @@ const fs = require('fs');
 let html = fs.readFileSync('./index.html');
 // let js = fs.readFileSync('./index.js');
 /**
-* A basic Hello World function
-* @param {string} name Who you're saying hello to
+* Serves up a web page to add/delete channes and stations
 * @returns {object.http}
 */
-module.exports = async (name = 'world', context) => {
+module.exports = async (context) => {
 
 	let identifier = context.service.identifier;
 	let user = identifier.split('.')[0];
