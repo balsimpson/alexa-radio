@@ -1,6 +1,6 @@
 {
   "name": "alexa-radio",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "description": "Alexa Radio Skill that lets you add your favourtite streaming stations using a web page",
   "author": "tinkr",
   "main": "functions/__main__.js",

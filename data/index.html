@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Radio</title>
+
+	<!-- MaterializeCSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+	<!--Import Google Icon Font-->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+	<!-- Google Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Alegreya|Lato&display=swap" rel="stylesheet">
+
+	<!-- <link rel="icon" href="favicon.ico" type="image/x-icon" /> -->
+	<link rel="shortcut icon" href="./assets?asset=favicon" type="image/x-icon" />
+
+	<!-- Axios -->
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+	<style>
+		:root {
+			--alexa-font: 'Alegreya', serif;
+		}
+
+		.brand-logo {
+			margin-left: 10px;
+			font-size: 24px;
+			font-weight: 200;
+		}
+
+		.show-settings {
+			margin-right: 10px
+		}
+
+		.intro {
+			margin: 20px 0;
+		}
+
+		.channel-add {
+			margin: 20px 0;
+		}
+
+		.channel {
+			border-radius: 6px;
+		}
+
+		.channel-item-add-btn {
+			border-radius: 20px;
+		}
+
+		.channel-item-add-btn:hover {
+			background-color: #ffa726;
+		}
+
+		.channel-item-header {
+			margin: 0 10px;
+		}
+
+		.channel-item-add {
+			padding: 10px;
+		}
+
+		.modal-channel-add {
+			padding: 20px;
+		}
+
+		.channel-name {
+			position: relative;
+			text-align: left;
+			margin-left: 10px;
+			font-size: 24px;
+			font-weight: 400;
+			color: lightgray;
+			opacity: 0.8;
+		}
+
+		.station-name {
+			position: relative;
+			opacity: 0.8;
+		}
+
+		.station-url {
+			position: relative;
+			opacity: 0.8;
+		}
+
+		.channel-name:focus {
+			outline: 0;
+			opacity: 1;
+		}
+
+		.station-name:focus {
+			outline: 0;
+			opacity: 1;
+		}
+
+		.station-url:focus {
+			outline: 0;
+			opacity: 1;
+		}
+
+		.channel-name::after {
+			content: 'Press enter to save';
+			position: absolute;
+			bottom: -21px;
+			left: 0;
+			font-size: 10px;
+			font-weight: 200;
+			opacity: 0;
+			transition: opacity .2s;
+			/* display: none; */
+		}
+
+		.station-name::after {
+			content: 'Press enter to save';
+			/* position: absolute; */
+			color: #263238;
+			bottom: -21px;
+			/* left: 0; */
+			font-size: 10px;
+			font-weight: 200;
+			opacity: 0;
+			transition: opacity .2s;
+			/* display: block; */
+			padding-left: 10px;
+		}
+
+		.station-url::after {
+			content: 'Press enter to save';
+			/* position: absolute; */
+			color: #263238;
+			bottom: -21px;
+			/* left: 0; */
+			font-size: 10px;
+			font-weight: 200;
+			opacity: 0;
+			transition: opacity .2s;
+			/* display: block; */
+			padding-left: 10px;
+		}
+
+		.channel-name:focus::after {
+			opacity: 0.6;
+		}
+
+		.station-name:focus::after {
+			opacity: 1;
+		}
+
+		.station-url:focus::after {
+			opacity: 1;
+		}
+
+		.variable-block {
+			display: inline-block;
+			margin: 1px 1px 1px 0;
+			padding: 2px;
+			color: #fff;
+			font-size: 14px;
+			background: -webkit-gradient(linear, left top, left bottom, from(#4e6ff9), to(#3153e4));
+			background: linear-gradient(180deg, #4e6ff9, #3153e4);
+			border-radius: .25rem;
+			cursor: default;
+		}
+
+		a {
+			color: #b0bec5;
+		}
+
+		a:hover {
+			color: #ffd180;
+		}
+
+		input:not([type]),
+		input[type=text]:not(.browser-default),
+		input[type=password]:not(.browser-default),
+		input[type=email]:not(.browser-default),
+		input[type=url]:not(.browser-default),
+		input[type=time]:not(.browser-default),
+		input[type=date]:not(.browser-default),
+		input[type=datetime]:not(.browser-default),
+		input[type=datetime-local]:not(.browser-default),
+		input[type=tel]:not(.browser-default),
+		input[type=number]:not(.browser-default),
+		input[type=search]:not(.browser-default),
+		textarea.materialize-textarea {
+			height: 2rem;
+		}
+
+		#settings-modal.modal.modal-fixed-footer .modal-content {
+			height: calc(100% - 76px);
+		}
+
+		.progress {
+			width: 50%;
+			background-color: #ffd180;
+			margin-top: 120px;
+			display: inline-block;
+		}
+
+		.progress .indeterminate {
+			background-color: #ffa726;
+		}
+
+		.alexa-prompt {
+			font-family: var(--alexa-font);
+			font-size: 16px;
+			padding-right: 20px;
+			line-height: 0.7;
+		}
+
+		code {
+			background-color: #c8fff9;
+			padding: 2px 4px;
+			color: rgb(0, 0, 0);
+			border-radius: 6px
+		}
+
+		i.left {
+			float: left;
+			margin-right: 6px;
+		}
+
+		/* Dotted border */
+		hr.new {
+			border-top: 1px dotted lightgray;
+			border-bottom: 0;
+		}
+
+		.modal .modal-footer {
+			/* text-align: center; */
+			height: 100px;
+			padding: 20px;
+		}
+
+		.tabs.item-tabs {
+			position: relative;
+			overflow-x: auto;
+			overflow-y: hidden;
+			height: 24px;
+			width: 240px;
+			background-color: transparent;
+			margin: 0;
+			white-space: nowrap;
+		}
+
+		.tabs .tab a:hover,
+		.tabs .tab a.active {
+			background-color: #c2f8f3;
+			color: #26a69a;
+			/* font-weight: 600; */
+		}
+
+		.tabs .tab a:focus,
+		.tabs .tab a:focus.active {
+			background-color: #c2f8f3;
+			outline: none;
+		}
+
+		.tabs .tab a {
+			color: #26a69a;
+			/* background-color: #c2f8f3; */
+			display: block;
+			width: 100%;
+			height: 100%;
+			padding: 0 24px;
+			font-size: 14px;
+			text-overflow: ellipsis;
+			overflow: hidden;
+			-webkit-transition: color .28s ease, background-color .28s ease;
+			transition: color .28s ease, background-color .28s ease;
+			line-height: 24px;
+		}
+
+		.tabs .indicator {
+			position: absolute;
+			bottom: 0;
+			height: 2px;
+			background-color: #26a69a;
+			will-change: left, right;
+		}
+
+		.btn-flat {
+			border: 1px solid lightgray;
+		}
+
+		.col .row {
+			margin-left: -.75rem;
+			/* margin-right: -.75rem; */
+		}
+
+		.row .col {
+			float: left;
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+			padding: 0 2px;
+			min-height: 1px;
+		}
+
+		.section {
+			border: 0;
+			padding: 10px 0;
+			line-height: .7;
+			margin: 0;
+		}
+
+		#add-channel-btn {
+			border-radius: 20px;
+			/* margin: 10px; */
+		}
+
+		.channel-item {
+			background-color: #455a64;
+			text-align: center;
+			padding: 10px 6px;
+			border-radius: 6px;
+		}
+
+		/* .row {
+				margin-bottom: 6px;
+			} */
+
+		.card {
+			margin: 10px auto;
+		}
+
+		.card .card-content {
+			padding: 10px 24px;
+			border-radius: 0 0 2px 2px;
+		}
+
+		.station-item {
+			/* border: 1px solid lightgray; */
+			padding: 10px;
+			background: white;
+			border-radius: 6px;
+			text-align: left;
+			width: 98%;
+			/* margin: 6px 0; */
+			/* background-color: #26a69a; */
+			background-color: #263238;
+
+			color: lightgray;
+			font-weight: 600;
+			margin-bottom: 4px;
+			transition: color .2s, background-color .2s;
+		}
+
+		.station-item:hover {
+			/* border: 1px solid #26a69a; */
+			/* box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2) */
+			/* background-color: #eceff1; */
+			background-color: #b0bec5;
+			color: black;
+		}
+
+		.station-item:hover a {
+			color: #263238;
+		}
+
+		.station-item:hover .station-url {
+			color: #263238;
+		}
+
+		.item-name {
+			font-size: 14px;
+		}
+
+		.section {
+			border: 0;
+			padding: 10px 0;
+		}
+
+		.modal.modal-fixed-footer .modal-content {
+			position: absolute;
+			height: calc(100% - 156px);
+			max-height: 100%;
+			width: 100%;
+			overflow-y: auto;
+		}
+
+		.modal .modal-footer {
+			/* text-align: center; */
+			height: auto;
+			padding: 20px;
+		}
+
+		.shuffle-channel {
+			border-bottom: 1px dotted;
+			padding: 0 0 20px 0;
+		}
+
+		.alexa-prompt-options {
+			padding: 20px;
+			border-radius: 10px;
+			border: 1px solid lightgray;
+			margin-top: 6px;
+			line-height: .7;
+		}
+
+		.station-status-unplayed {
+			margin-left: 6px;
+			font-size: 8px;
+			font-weight: 400;
+			background: lightgray;
+			color: black;
+			padding: 2px 6px;
+			border-radius: 10px;
+			/* text-transform: uppercase; */
+		}
+
+		.station-status-streamable {
+			margin-left: 6px;
+			font-size: 8px;
+			font-weight: 400;
+			background: #27cea7;
+			color: black;
+			padding: 2px 6px;
+			border-radius: 10px;
+		}
+
+		.station-status-failed {
+			margin-left: 6px;
+			font-size: 8px;
+			font-weight: 400;
+			background: #e53935;
+			color: white;
+			padding: 2px 6px;
+			border-radius: 10px;
+		}
+
+		.station-url {
+			font-size: 12px;
+			font-weight: 300;
+			line-height: 1;
+			color: grey;
+			white-space: pre-wrap;
+			white-space: -moz-pre-wrap;
+			white-space: -pre-wrap;
+			white-space: -o-pre-wrap;
+			word-wrap: break-word;
+		}
+
+		.empty-state {
+			margin-top: 200px;
+			height: 200px;
+			text-align: center;
+		}
+
+		/* Helper Text */
+		.helper-text-btn {
+			font-size: 12px;
+			margin: 0 auto;
+			margin-top: 10px;
+			line-height: 1;
+			color: gray;
+			max-width: 125px;
+		}
+
+
+
+		.channel-items-container {
+			max-height: 400px;
+			overflow: scroll;
+		}
+
+		.channel-item.card {
+			margin-bottom: 36px;
+		}
+
+		.modal.modal-fixed-footer .modal-footer {
+			border-top: 1px solid rgba(0, 0, 0, 0.1);
+			position: absolute;
+			bottom: 0;
+			z-index: 2;
+		}
+
+		/* Notifications */
+		.notification {
+			position: relative;
+			background-color: white;
+			color: black;
+			padding: 10px 10px 10px 24px;
+			margin: 2px 4px;
+			width: 240px;
+			text-align: left;
+			font-size: 12px;
+			line-height: 1;
+			border-top: 1px solid lightgray;
+			border-right: 1px solid lightgray;
+			border-bottom: 1px solid lightgray;
+			border-radius: 4px;
+		}
+
+		.notification::before {
+			content: '';
+			width: 10px;
+			height: 100%;
+			background-color: brown;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+
+		/* notifications button */
+		#show-notifications-btn {
+			position: relative;
+			display: inline-block;
+			cursor: pointer;
+		}
+
+		.notification-items {
+			position: absolute;
+			opacity: 0;
+			top: 60px;
+			right: 60px;
+			width: 250px;
+			background-color: white;
+			z-index: 2000;
+			border-radius: 5px;
+			box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+		}
+
+		.station-quick-add {
+			display: none;
+			padding: 0 20px;
+			max-height: 0;
+			opacity: 0;
+			transition: all 2s;
+		}
+
+		.show {
+			opacity: 1;
+			max-height: 0px;
+			transition: all 2s;
+		}
+
+		.show.station-quick-add {
+			display: block;
+			opacity: 1;
+			max-height: 250px;
+			transition: all 2s;
+		}
+
+		.notification-items:after {
+			content: '';
+			display: block;
+			position: absolute;
+			right: 20px;
+			bottom: 100%;
+			width: 0;
+			height: 0;
+			border-bottom: 10px solid #FFFFFF;
+			border-top: 10px solid transparent;
+			border-left: 10px solid transparent;
+			border-right: 10px solid transparent;
+		}
+
+		.toast {
+			text-align: left;
+			background: #ffd180;
+			color: black;
+			border-radius: 20px;
+		}
+	</style>
+
+</head>
+
+<body class="blue-grey darken-4">
+
+	<nav class="transparent">
+		<div class="nav-wrapper container"">
+				<div class=" container"></div>
+		<a href="#" class="brand-logo left"><i class="material-icons orange-text text-accent-1">radio</i>Radio</a>
+		<ul class="show-settings right">
+			<!-- <li><a id="show-notifications-btn"><i class="material-icons">notifications</i></a> -->
+			<li><a id="show-settings-btn" href="#settings-modal" class="modal-trigger"><i
+						class="material-icons">settings</i></a></li>
+		</ul>
+		</div>
+		</div>
+	</nav>
+
+	<div class="container main-content center-align">
+
+		<div class="row intro">
+			<div class="col s8 offset-s2">
+				<p class="blue-grey-text text-lighten-3">Alexa Audio Player supports AAC/MP4, MP3, HLS, PLS and M3U
+					audio streams ranging
+					from 16kbps to 384kbps. Make sure the stream URL starts with <code
+						class="blue-grey lighten-3">https</code></p>
+
+				<div class="row channel-add">
+					<div class="col s12">
+						<a data-type="station" href="#modal-channel"
+							class="waves-effect waves-light btn-small modal-trigger z-depth-2 channel-item-add-btn orange accent-1 black-text"><i
+								class="material-icons left">library_add</i>channel</a>
+						<div class="helper-text-btn">Channels are a collection of stations.
+						</div>
+
+					</div>
+
+				</div>
+				<!-- <a class="tooltipped" >Hover me!</a> -->
+			</div>
+		</div>
+
+		<div id="channel-list">
+			<div class="progress">
+				<div class="indeterminate"></div>
+			</div>
+		</div>
+
+		<!-- Modal - Settings -->
+		<div id="settings-modal" class="modal left-align modal-fixed-footer">
+			<div class="modal-content">
+				<!-- <div class="container"> -->
+				<h4 class="modal-title">Settings<span class="modal-close"><i
+							class="material-icons right grey-text">close</i></span></h4>
+				<p>Here you can change the various Alexa responses.</p>
+
+				<div class="section">
+					<h6 class="teal-text">Now Playing</h6>
+					<span class="helper-text-btn">Alexa says this when playing a new station. e.g: Here is Acoustic
+						Blues. Channel name will be added at the end automatically.</span>
+					<div class="now-playing alexa-prompt-options">
+						<input placeholder="Here is" type="text">
+						<input placeholder="This is" type="text">
+						<input placeholder="Enjoy" type="text">
+					</div>
+				</div>
+
+				<div class="section">
+					<h6 class="teal-text">Stop Playing</h6>
+					<span class="helper-text-btn">Alexa says this when you stop the skill.</span>
+					<div class="stop-playing alexa-prompt-options">
+						<input placeholder="Come back soon" type="text">
+						<input placeholder="Goodbye" type="text">
+						<input placeholder="Ciao" type="text">
+					</div>
+				</div>
+
+				<div class="section">
+					<h6 class="teal-text">Next Playing</h6>
+					<span class="helper-text-btn">Alexa says this when it plays the next station.</span>
+					<div class="next-playing alexa-prompt-options">
+						<input placeholder="Next up is" type="text">
+						<input placeholder="Next is" type="text">
+						<input placeholder="Up next" type="text">
+					</div>
+				</div>
+
+				<div class="section">
+					<h6 class="teal-text">Help</h6>
+					<span class="helper-text-btn">Alexa says this when you ask for help.</span>
+					<div class="help-playing alexa-prompt-options">
+						<input placeholder="Tell me a channel or station name to play it" type="text">
+						<input placeholder="" type="text">
+						<input placeholder="" type="text">
+					</div>
+				</div>
+
+				<div class="section">
+					<h6 class="teal-text">Error</h6>
+					<span class="helper-text-btn">Alexa says this when encountering an error.</span>
+					<div class="error-playing alexa-prompt-options">
+						<input placeholder="An error was encountered" type="text">
+						<input placeholder="Something went wrong" type="text">
+						<input placeholder="Oops" type="text">
+					</div>
+				</div>
+
+				<!-- </div> -->
+			</div>
+			<div class="modal-footer">
+				<a id="settings-save" href="#!" class="modal-close modal-action btn-flat teal-text">Save
+					Settings</a>
+				<a href="#!" class="modal-close modal-action btn-flat teal-text left">Cancel</a>
+
+			</div>
+		</div>
+
+		<!-- Modal Structure -->
+		<div id="modal-channel" class="modal modal-fixed-footer blue-grey darken-1">
+			<div class="modal-content">
+				<form id="modal-add-channel-form">
+					<h4 id="modal-channel-title" class="modal-title teal-text"></h4>
+					<!-- channel Name -->
+					<div class="input-field modal-channel-name">
+						<i id="modal-channel-icon"
+							class="material-icons prefix blue-grey-text text-lighten-3">library_music</i>
+						<input id="modal-channel-name-input" placeholder="Channel Name e.g. 'Blues'" class="white-text"
+							type="text">
+						<span id="modal-channel-name-helper" class="helper-text left-align">Channels are a
+							collection
+							of stations based on mood or genre.</span>
+					</div>
+					<div id="modal-stations-list">
+						<!-- new channel items -->
+					</div>
+
+					<div class="row modal-channel-add">
+						<div class="col s12">
+							<input id="modal-station-url"
+								placeholder="e.g: https://shoutcast.com/tunein-station.m3u?id=1796807"
+								class="white-text validate" type="url">
+						</div>
+						<div class="col s11">
+							<input id="modal-station-name" placeholder="Station Name" class="white-text validate"
+								type="text">
+						</div>
+						<div class="col s1">
+							<a id="modal-add-station-btn" class="btn-small btn-floating orange accent-1"" href=" #"><i
+									class="material-icons black-text right">add</i></a>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer blue-grey darken-3 blue-grey-text text-lighten-3">
+				<div class="row valign-wrapper shuffle-channel">
+					<div class="col s7">
+						<span class="left-align">Turn on shuffle to play a random station when you say Alexa,
+							Next</span>
+					</div>
+					<div class="col s5 center-align">
+						<div class="switch">
+							<label>
+								Off
+								<input id="shuffle-channel" type="checkbox">
+								<span class="lever"></span>
+								On
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="row valign-wrapper">
+					<div class="col s8 left-align">
+						<span style="font-size: 10px">You can say</span><br>
+						<span class="alexa-prompt">
+							Alexa, ask radio to play <span id="alexa-prompt-val" style="
+								font-weight: bold;
+							">Channel name</span>
+						</span>
+					</div>
+
+					<div class="col s4">
+						<a id="modal-save-channel-btn" href="#!"
+							class="modal-action waves-effect waves-orange btn-flat blue-grey-text text-lighten-3">SAVE</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
+
+	<!-- Compiled and minified MaterializeCSS JavaScript -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+
+	<script>
+		let user_collection_url = "user_url";
+		// let user_collection_url = "https://learn.api.stdlib.com/test-radio@dev/";
+		// console.log('user_collection_url:', user_collection_url);
+	</script>
+	<script>
+		function initMaterialize() {
+			// document.addEventListener('DOMContentLoaded', function () {
+			let elems = document.querySelectorAll('.modal');
+			let instances = M.Modal.init(elems, {
+				onOpenStart: modalOpen
+			});
+
+			channelRenameListener();
+			channelShuffleListener();
+			stationRenameListener();
+		}
+
+		const empty_state_html = `
+			<div class="empty-state">
+				<div class="flow-text blue-grey-text text-lighten-2">You have no saved channels. <br>
+				Click the button above to get started.
+				</div>
+			</div>
+		`
+
+		// Entire collection data
+		let collection = {};
+		// Items list from collection 
+		// let items_list = [];
+
+		let new_channel = {
+			items: []
+		};
+
+		let modal_station_count = 0;
+
+		console.log('user URL: ', user_collection_url);
+
+		getItems();
+		// EVENT LISTENERS
+		// Modal Add Station Button
+		el('#modal-add-station-btn').addEventListener('click', addStation);
+
+		// Delete Station Button
+		el('#channel-list').addEventListener('click', deleteStation);
+
+		// Modal Station Add Button
+		el('#modal-channel').addEventListener('keyup', stationAddBtnStatus);
+
+		// Update Alexa prompt on channel add modal
+		el('#modal-channel-name-input').addEventListener('keyup', updateAlexaPrompt);
+		el('#modal-station-name').addEventListener('keyup', updateAlexaPrompt);
+
+		// Modal Channel Save Button
+		el('#modal-save-channel-btn').addEventListener('click', addChannel);
+
+		// Save Settings
+		el('#settings-save').addEventListener('click', saveSettings);
+
+		function insertAtCursor(input, textToInsert) {
+			const isSuccess = document.execCommand("insertText", false, textToInsert);
+
+			// Firefox (non-standard method)
+			if (!isSuccess && typeof input.setRangeText === "function") {
+				const start = input.selectionStart - 1;
+				input.setRangeText(textToInsert);
+				// update cursor to be at the end of insertion
+				input.selectionStart = input.selectionEnd = start + textToInsert.length;
+
+				// Notify any possible listeners of the change
+				const e = document.createEvent("UIEvent");
+				e.initEvent("input", true, false);
+				input.dispatchEvent(e);
+			}
+		}
+
+		function updateAlexaPrompt(e) {
+			el('#alexa-prompt-val').innerHTML = e.target.value;
+		}
+
+
+		function collectionAddItem(channel_name, event) {
+
+			channel_name = sanitized(channel_name);
+			event.preventDefault();
+			let collection_item_div = el(`#${channel_name}`);
+			let channel_index = collection_item_div.getAttribute('data-index');
+			console.log('index:', channel_index);
+
+			let item_name = el(`#${channel_name}-station-name`).value;
+			let item_url = el(`#${channel_name}-station-url`).value;
+
+			let items_div = el(`#${channel_name}-station-name`).parentNode.parentNode.parentNode.nextElementSibling;
+
+			let item = {
+				name: item_name,
+				url: item_url,
+				status: 'unplayed'
+			}
+
+			if (item_name && item_url) {
+
+				let index = items_div.children.length;
+
+				let stationhtml = quickStationHTML(item, channel_name, index);
+				items_div.appendChild(stationhtml);
+
+				let new_item = {
+					name: item_name,
+					url: item_url,
+					status: 'unplayed'
+				}
+
+				// update collection
+				collection.list[channel_index].items.push(new_item);
+				// items_list = collection.list;
+
+				saveStations(collection.list, `${item_name} added to ${channel_name}`);
+
+				// Clear input fields
+				el(`#${channel_name}-station-name`).value = '';
+				el(`#${channel_name}-station-name`).classList.remove('valid');
+
+				el(`#${channel_name}-station-url`).value = '';
+				el(`#${channel_name}-station-url`).classList.remove('valid');
+				el(`#${channel_name}-station-url`).classList.remove('invalid');
+
+			} else {
+				showToast('info', `Add station name and station URL`);
+
+			}
+		}
+
+
+		function modalOpen() {
+
+			let responses = collection.settings.responses;
+
+			if (responses) {
+				// Update input values with saved values
+				let instance = M.Modal.getInstance(el('#settings-modal'));
+
+				if (instance.isOpen) {
+					responses.now_playing.forEach((val, index) => {
+						(el('.now-playing').children[index]).value = val;
+					});
+					responses.stop_playing.forEach((val, index) => {
+						(el('.stop-playing').children[index]).value = val;
+					});
+					responses.next_playing.forEach((val, index) => {
+						(el('.next-playing').children[index]).value = val;
+					});
+					responses.help_playing.forEach((val, index) => {
+						(el('.help-playing').children[index]).value = val;
+					});
+					responses.error_playing.forEach((val, index) => {
+						(el('.error-playing').children[index]).value = val;
+					});
+				}
+			}
+
+		}
+
+		function addChannel(e) {
+
+			let channel_name = el('#modal-channel-name-input').value;
+
+			if (channel_name && new_channel.items.length > 0) {
+				// console.log('clicked');
+				new_channel.index = collection.list.length;
+				new_channel.name = channel_name;
+
+				// save channel shuffle status
+				new_channel.shuffle = el(`#shuffle-channel`).checked;
+
+				// Add new channel to channel list
+				collection.list.push(new_channel);
+
+				// close modal
+				el('#modal-save-channel-btn').classList.add('modal-close');
+
+				// Clear form
+				el('#modal-add-channel-form').reset();
+				el('#modal-stations-list').innerHTML = '';
+				el(`#shuffle-channel`).checked = false;
+
+				let item_txt = (new_channel.items.length > 1) ? 'stations' : 'station';
+				let toast_msg = `${channel_name} saved with ${new_channel.items.length} ${item_txt}. Click on the channel or station name to rename it.`;
+
+				// console.log('add channel:', new_channel);
+
+				saveStations(collection.list, toast_msg);
+
+			} else {
+				if (channel_name) {
+					showToast('info', `Add at least one station`);
+				} else {
+					showToast('info', `Give the channel a name`);
+					el('#modal-channel-name-input').focus();
+				}
+			}
+
+		}
+
+		function addStation(e) {
+
+			e.preventDefault();
+			let station_name = el('#modal-station-name').value;
+			let station_url = el('#modal-station-url').value;
+
+			let name_valid = el('#modal-station-name').classList.contains("valid");
+			let url_valid = el('#modal-station-url').classList.contains("valid");
+
+			if (name_valid && url_valid) {
+				// Add to channel
+				let new_station = {
+					name: station_name,
+					url: station_url,
+					status: 'unplayed'
+				}
+
+				new_channel.items.push(new_station);
+				renderModalStationItem(new_channel.items);
+
+				showToast('check', `${station_name} added`);
+
+				// Clear form
+				el('#modal-station-name').value = '';
+				el('#modal-station-name').classList.remove('valid');
+				el('#modal-station-url').value = '';
+				el('#modal-station-url').classList.remove('valid');
+
+			} else {
+				console.log(station_name, station_url);
+
+				if (name_valid) {
+					M.toast({ html: 'Enter a valid URL. <br>e.g: http://yp.shoutcast.com/sbin/tunein-station.m3u?id=1796807' })
+				} else if (url_valid) {
+					showToast('info', 'Enter the station name');
+				} else {
+					showToast('info', 'Enter the station name and the station URL');
+				}
+			}
+
+		}
+
+		function stationQuickAddBtnStatus(e) {
+
+			new_channel = {
+				name: '',
+				items: []
+			};
+
+			let parent_node = e.target.parentNode.parentNode;
+
+			let station_url = parent_node.children[0].children[0];
+			let station_name = parent_node.children[1].children[0];
+			let url_valid = station_url.classList.contains('valid');
+
+			if (url_valid && station_name.value) {
+				console.log('writing', url_valid, station_name.value);
+			}
+
+			if (url_valid && station_name.value) {
+				// Add to channel
+				let new_station = {
+					name: station_name,
+					url: station_url,
+					status: 'unplayed'
+				}
+
+				new_channel.items.push(new_station);
+				renderModalStationItem(new_channel.items);
+
+				M.toast({ html: `${station_name} added` });
+
+				// Clear form
+				el('#modal-station-name').value = '';
+				el('#modal-station-name').classList.remove('valid');
+				el('#modal-station-url').value = '';
+				el('#modal-station-url').classList.remove('valid');
+
+			} else {
+				console.log('Add station name and station url');
+
+				if (name_valid) {
+					M.toast({ html: 'Enter a valid URL. <br>e.g: http://yp.shoutcast.com/sbin/tunein-station.m3u?id=1796807' })
+				} else if (url_valid) {
+					M.toast({ html: 'Enter the station name' })
+				} else {
+					M.toast({ html: 'Enter the station name and the station URL' })
+				}
+			}
+		}
+
+		function stationAddBtnStatus(e) {
+			let parent_node = e.target.parentNode.parentNode;
+			// console.log('writing', parent_node);
+		}
+
+		async function deleteStation(e) {
+
+
+			let items_list = collection.list;
+			let delete_btn = e.target.parentNode;
+			if (delete_btn.classList.contains('delete-station-btn')) {
+				e.preventDefault();
+				let station_item = delete_btn.parentNode.parentNode;
+				let station_index = station_item.getAttribute('data-index');
+				let channel_item = station_item.parentNode.parentNode;
+				let channel_index = channel_item.getAttribute('data-index');
+
+				console.log(station_index, channel_index, items_list[channel_index]);
+
+				let station_name = items_list[channel_index].items[station_index].name;
+				let channel_name = items_list[channel_index].name;
+
+				// delete station
+				items_list[channel_index].items.splice(station_index, 1);
+				// delete channel progress
+				let channel_progress_station = '';
+				if (items_list[channel_index] && items_list[channel_index].progress) {
+					channel_progress_station = items_list[channel_index].progress.name;
+				}
+				if (station_name == channel_progress_station) {
+					items_list[channel_index].progress = {};
+				}
+				// delete collection resume
+				let resume_station = collection.resume.name || '';
+				if (station_name == resume_station) {
+					collection.resume = {};
+				}
+
+				// collection.list = items_list;
+
+				// if no stations, delete channel
+				if (items_list[channel_index].items.length == 0) {
+					items_list.splice(channel_index, 1);
+					saveStations(items_list, `${channel_name} deleted with ${station_name}`);
+				} else {
+					saveStations(items_list, `${station_name} deleted from ${channel_name}`);
+				}
+
+			}
+		}
+
+		// Show Item Add Input Fields
+		function showAddItem(channel_name, event) {
+			event.preventDefault();
+			channel_name = sanitized(channel_name);
+			let item_add = document.querySelector(`.${channel_name}-item-add`);
+			let item_add_icon = document.querySelector(`#${channel_name}-show-add`);
+
+			item_add.classList.toggle('show');
+
+			if (item_add.style.display === 'block') {
+				item_add.style = 'display:none'
+				item_add_icon.innerHTML = 'add'
+			} else {
+				item_add.style = 'display:block'
+				item_add_icon.innerHTML = 'close'
+			}
+		}
+
+		function renderStationItem(station_name, station_url, channel_div) {
+			let station_item = createNode('div', ['row', 'station-item', 'valign-wrapper']);
+			station_item.innerHTML = `
+		<div class="col s10">
+			<span contenteditable=true class="station-name">${station_name}</span><br>
+			<span contenteditable=true class="station-url grey-text">${station_url}</span>
+		</div>
+		<div class="col s2">78
+			<a href="#"><i class="tiny material-icons right">close</i></a>
+		</div>
+	`;
+			channel_div.appendChild(station_item);
+		}
+
+		function channelRenameListener() {
+
+			let channels = document.querySelectorAll('.channel-name');
+			let updateflag = false;
+
+			channels.forEach(channel => {
+				channel.addEventListener('keydown', async e => {
+					if (e.keyCode == 13) {
+						e.preventDefault();
+						let channel_container = e.target.parentNode.parentNode.parentNode.parentNode;
+						updateflag = true;
+						let index = channel_container.getAttribute('data-index');
+						collection.list[index].name = e.target.textContent;
+					}
+
+					if (updateflag) {
+						await saveStations(collection.list, 'Channel renamed');
+					}
+				})
+			})
+		}
+
+		function channelShuffleListener() {
+
+			let channel_shuffles = document.querySelectorAll('.channel-shuffle-status');
+			let updateflag = false;
+
+			channel_shuffles.forEach(shuffle => {
+				shuffle.addEventListener('change', async e => {
+
+					e.preventDefault();
+					let channel_container = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
+					
+					let index = channel_container.getAttribute('data-index');
+
+					let channel_name = collection.list[index].name;
+					let shouldShuffle = e.target.checked;
+
+					updateflag = true;
+					collection.list[index].shuffle = shouldShuffle;
+
+					if (updateflag) {
+
+						let toast_msg = `${channel_name} shuffle turned off`
+						if (shouldShuffle) {
+							toast_msg = `${channel_name} shuffle turned on`
+						}
+						await saveStations(collection.list, toast_msg);
+					}
+				})
+			})
+		}
+
+		function stationRenameListener() {
+
+			let station_names = document.querySelectorAll('.station-name');
+			let station_urls = document.querySelectorAll('.station-url');
+			let updateflag = false;
+
+			station_names.forEach(name => {
+				name.addEventListener('keydown', async e => {
+					console.log(e.keyCode);
+
+					if (e.keyCode == 13) {
+						e.preventDefault();
+						let name_container = e.target.parentNode.parentNode;
+						let channel_container = e.target.parentNode.parentNode.parentNode.parentNode;
+						updateflag = true;
+						let station_index = name_container.getAttribute('data-index');
+						let channel_index = channel_container.getAttribute('data-index');
+						console.log(station_index, channel_index);
+						collection.list[channel_index].items[station_index].name = e.target.textContent;
+					}
+
+					if (updateflag) {
+						await saveStations(collection.list, 'Station renamed');
+					}
+				})
+			})
+
+			station_urls.forEach(url => {
+				url.addEventListener('keydown', async e => {
+					console.log(e.keyCode);
+
+					if (e.keyCode == 13) {
+						e.preventDefault();
+						let url_container = e.target.parentNode.parentNode;
+						let channel_container = e.target.parentNode.parentNode.parentNode.parentNode;
+						updateflag = true;
+						let station_index = url_container.getAttribute('data-index');
+						let channel_index = channel_container.getAttribute('data-index');
+						console.log(station_index, channel_index);
+						collection.list[channel_index].items[station_index].url = e.target.textContent;
+					}
+
+					if (updateflag) {
+						await saveStations(collection.list, 'Station URL changed');
+					}
+				})
+			})
+		}
+
+		function getItems() {
+			axios({
+
+				url: user_collection_url + 'stations',
+				method: "GET"
+			})
+				.then(result => {
+					// console.log('result', result.data);
+					// Empty state check
+					collection = result.data;
+
+					if (collection && collection.list) {
+						console.log('collection', collection);
+					} else {
+						console.log('else', collection);
+						collection = {};
+						collection.list = [];
+						collection.settings = {};
+						collection.resume = {};
+					}
+
+					renderChannels(collection.list, initMaterialize);
+					// Listen to Channel Name Edit
+					let channel_names = document.querySelectorAll('.channel-name');
+					// console.log(channel_names);
+					// channelRenameListener();
+
+				})
+		}
+
+		async function saveStations(channels, toast_msg) {
+			let data = {
+				settings: collection.settings || {},
+				resume: collection.resume || {},
+				list: channels
+			}
+
+			axios({
+				url: `${user_collection_url}stations/?status=update&info=${JSON.stringify(data)}`,
+				method: "GET"
+			})
+				.then(result => {
+					if (result.status == 200) {
+						// console.log('result', result.status, collection.list);
+						showToast('check', toast_msg);
+						renderChannels(collection.list, initMaterialize);
+						new_channel = {
+							items: []
+						};
+					} else {
+						console.log('save not successful');
+					}
+				})
+				.catch(error => {
+					console.log('error', error);
+				})
+		}
+
+		function saveSettings() {
+
+			let now_playing = [];
+			let stop_playing = [];
+			let next_playing = [];
+			let help_playing = [];
+			let error_playing = [];
+			// get input values
+			[...(el('.now-playing').children)].forEach(txt => {
+				if (txt.value) {
+					now_playing.push(txt.value)
+				}
+			});
+			[...(el('.stop-playing').children)].forEach(txt => {
+				if (txt.value) {
+					stop_playing.push(txt.value)
+				}
+			});
+			[...(el('.next-playing').children)].forEach(txt => {
+				if (txt.value) {
+					next_playing.push(txt.value)
+				}
+			});
+			[...(el('.help-playing').children)].forEach(txt => {
+				if (txt.value) {
+					help_playing.push(txt.value)
+				}
+			});
+			[...(el('.error-playing').children)].forEach(txt => {
+				if (txt.value) {
+					error_playing.push(txt.value)
+				}
+			});
+
+			let settings = {
+				responses: {
+					now_playing: now_playing,
+					stop_playing: stop_playing,
+					next_playing: next_playing,
+					help_playing: help_playing,
+					error_playing: error_playing
+				}
+			}
+
+			// update local collection
+			collection.settings = settings;
+
+			let data = {
+				settings: settings,
+				list: collection.list,
+				resume: collection.resume
+			}
+			axios({
+				url: `${user_collection_url}stations/?status=update&info=${JSON.stringify(data)}`,
+				method: "GET"
+			})
+				.then(result => {
+					console.log('result', result);
+					if (result.status == 200) {
+						showToast('check', 'Settings saved.');
+					} else {
+						showToast('info', 'Save failed.' + result.statusText);
+						console.log('save not successful', result);
+					}
+				})
+				.catch(error => {
+					console.log('error', error);
+				})
+		}
+
+		function renderChannels(channels, callback) {
+			let channel_list_div = el('#channel-list');
+			channel_list_div.innerHTML = '';
+
+			if (channels.length > 0) {
+
+				for (let i = 0; i < channels.length; i++) {
+					const channel = channels[i];
+					let channel_div = createNode('div', ['container', 'channel-item', 'card']);
+					channel_div.id = sanitized(channel.name);
+					channel_div.setAttribute('data-index', i);
+					channel_div.innerHTML = channelHTML(channels, channel);
+
+					let items = createNode('div', ['stations-container']);
+
+					for (let j = 0; j < channel.items.length; j++) {
+						const station = channel.items[j];
+						let station_item = createNode('div', ['row', 'station-item', 'valign-wrapper']);
+						station_item.setAttribute('data-index', j);
+						station_item.innerHTML = stationHTML(station, channels)
+						items.appendChild(station_item);
+					}
+
+					channel_div.appendChild(items);
+					channel_list_div.appendChild(channel_div);
+				}
+			} else {
+				channel_list_div.innerHTML = empty_state_html;
+			}
+
+			callback();
+		}
+
+		function quickStationHTML(station, collection, index) {
+			let station_item = createNode('div', ['row', 'station-item', 'valign-wrapper']);
+			station_item.setAttribute('data-index', index);
+			station_item.innerHTML = `
+		<div class="col s11">
+			<span contenteditable=true class="station-name">${station.name}</span>
+			<span class="station-status-${station.status}">${station.status}</span><br>
+			<span contenteditable=true class="station-url">${station.url}</span>
+		</div>
+
+		<div class="col s1">
+			<a class="delete-station-btn" href="#"><i class="tiny material-icons right">close</i></a>
+		</div>
+	`;
+			return station_item;
+		}
+
+		function stationHTML(station, collection) {
+
+			return `
+		<div class="col s11">
+			<span contenteditable=true class="station-name">${station.name}</span>
+			<span class="station-status-${station.status}">${station.status}</span><br>
+			<span contenteditable=true class="station-url">${station.url}</span>
+		</div>
+	
+		<div class="col s1">
+			<a class="delete-station-btn" href="#"><i class="tiny material-icons right">close</i></a>
+		</div>
+	`;
+		}
+
+		function channelHTML(collection, channel) {
+
+			let shuffle = channel.shuffle;
+
+			let shuffleHTML = `<input class="channel-shuffle-status" type="checkbox">`;
+
+			if (shuffle) {
+				shuffleHTML = `<input class="channel-shuffle-status" checked type="checkbox">`
+			}
+
+			let sanitized_name = sanitized(channel.name);
+			return `
+			<div class="channel-item-header">
+				<form class="row valign-wrapper">
+					<div class="col s1 left" style="padding-top: 10px;">
+						<i class="material-icons blue-grey-text text-lighten-3">library_music</i>
+					</div>
+					<div class="col s7">
+						<h5 class="channel-name" contenteditable="true">${channel.name}</h5>
+					</div>
+					<div class="col s3">
+					<div class="channel-shuffle">
+						<div class="switch">
+							<label>
+								Shuffle
+								${shuffleHTML}
+							<span class="lever"></span>
+							</label>
+						</div>
+					</div>
+				</div>
+					<div class="col s1">
+						<a onclick="showAddItem('${sanitized_name}', event)" class="add-station-btn" href="#"><i
+								id="${sanitized_name}-show-add" class="material-icons right">add</i></a>
+					</div>
+				</form>
+			</div>
+			<div class="row ${sanitized_name}-item-add station-quick-add">
+				<form>
+					<div class="col s12">
+						<input id="${sanitized_name}-station-url" placeholder="Station URL" type="url" class="validate white-text">
+					</div>
+					<div class="col s11">
+						<input id="${sanitized_name}-station-name" placeholder="Station Name" type="text" class="validate white-text">
+					</div>
+					<div class="col s1 right-align">
+						<a onclick="collectionAddItem('${channel.name}', event)" class="btn-floating btn-small station-quick-add-btn orange accent-1 "><i class="material-icons black-text">add</i></a>
+					</div>
+				</form>
+			</div>
+			`;
+
+		}
+
+		// <!-- Modal Delete Station -->
+		function modalStationDelete(index) {
+			// console.log(new_channel.stations, station_index);
+			showToast('check', `${new_channel.items[index].name} deleted`);
+
+			new_channel.items.splice(index, 1);
+			renderModalStationItem(new_channel.items);
+		}
+
+		// Render Modal Station Item
+		function renderModalStationItem(stations) {
+			let station_list_div = document.getElementById('modal-stations-list');
+
+			if (stations.length > 0) {
+				station_list_div.innerHTML = '';
+
+				stations.forEach((station, index) => {
+					station_list_div.innerHTML += `
+					<div id="modal-station-${index}" class="row station-item valign-wrapper">
+						<div class="col s8">
+							<span class="station-name">${station.name}</span><br>
+							<span class="station-url grey-text">${station.url}</span>
+						</div>
+						<div class="col s4">
+							<a onclick="modalStationDelete('${index}')" data-index="${index}" href="#"><i class="material-icons right">close</i></a>
+						</div>
+					</div>				
+					`
+				});
+			} else {
+				station_list_div.innerHTML = '';
+			}
+		}
+
+		// HELPER FUNCTIONS
+		function showToast(status, message) {
+
+			console.log('toast:', status, message);
+			M.toast({ html: `<i class="material-icons" style="margin-right:6px">${status}</i> ${message}`, displayLength: 4000 });
+		}
+
+		function sanitized(channel_name) {
+			channel_name = channel_name.replace(/'/gmi, '');
+			channel_name = channel_name.toLowerCase();
+			let name = channel_name.split(' ');
+			return name.join('-');
+		}
+
+		function createNode(element, classNames) {
+			let elem = document.createElement(element);
+			if (classNames && classNames.length > 0) {
+				for (const className of classNames) {
+					elem.classList.add(className);
+				}
+			}
+			return elem;
+		}
+
+		function el(element) {
+			return document.querySelector(element);
+		}
+
+		// Get Random Activity
+		const activity = () => {
+			let activities = ["Read a book", "Rearrange the furniture", "Start an observation notebook", "Learn a foreign language", "Deep-clean your room", "Take a nap", "Dig up your family tree", "Do some puzzles", "Teach yourself a card trick", "Start a workout routine", "Blow bubbles", "Write a journal", "Plan a vacation", "Read the newspaper", "Play with a cat", "on a wandering walk", "Explore Wikipedia", "Take a long bath", "Binge-watch a great TV series", "Discover new music", "Revisit a favorite movie", "Do some stargazing", "on a hike", "Write poetry", "Ride a bike", "listen to a podcast", "learn to juggle", "bake some bread", "Take some pictures", "Start a blog", "visit an art gallery", "practice origami", "Make a time capsule", "Do some networking", "Build some paper airplanes", "Walk around the city", "Draw something", "Do some excercise"];
+
+			const randomItem = (arrayOfItems) => {
+				let i = 0;
+				i = Math.floor(Math.random() * arrayOfItems.length);
+				return (arrayOfItems[i]);
+			};
+
+			return `I'll go ${randomItem(activities).toLowerCase()}.`;
+		}
+// new 15
+	</script>
+</body>
+
+</html>

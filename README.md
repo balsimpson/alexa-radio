@@ -1,4 +1,5 @@
-#### Updated: This code lets you publish the skill to Alexa. 
+#### Update: 
+For a lot of reasons, this deployment was giving a lot of erros. Speant a lot of time bug killing and now everything works.
 
 # Create an Alexa Radio Skill in 5 Minutes
 

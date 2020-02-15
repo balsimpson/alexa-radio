@@ -7,8 +7,8 @@ let display_img_station = fs.readFileSync('./data/station.png');
 let audio_stream_failed = fs.readFileSync('./data/stream_failed.mp3');
 
 /**
-* A basic Hello World function
-* @param {string} asset Name of the icon
+* Serves assets like images and audio
+* @param {string} asset Name of the asset
 * @returns {object.http}
 */
 module.exports = async (asset = '') => {
