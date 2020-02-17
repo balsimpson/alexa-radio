@@ -854,7 +854,7 @@
 			event.preventDefault();
 			let collection_item_div = el(`#${channel_name}`);
 			let channel_index = collection_item_div.getAttribute('data-index');
-			console.log('index:', channel_index);
+			
 
 			let item_name = el(`#${channel_name}-station-name`).value;
 			let item_url = el(`#${channel_name}-station-url`).value;
@@ -871,7 +871,7 @@
 			}
 
 			if (name_valid && url_valid) {
-
+				console.log(name_valid, url_valid);
 				let index = items_div.children.length;
 
 				let stationhtml = quickStationHTML(item, channel_name, index);
@@ -898,6 +898,7 @@
 				el(`#${channel_name}-station-url`).classList.remove('invalid');
 
 			} else {
+				console.log('else', name_valid, url_valid);
 				if (name_valid) {
 					M.toast({ html: 'Enter a valid URL starting with https. <br>e.g: https://yp.shoutcast.com/sbin/tunein-station.m3u?id=1796807' })
 				} else if (url_valid) {
