@@ -1003,7 +1003,7 @@
 				console.log(station_name, station_url);
 
 				if (name_valid) {
-					M.toast({ html: 'Enter a valid URL. <br>e.g: http://yp.shoutcast.com/sbin/tunein-station.m3u?id=1796807' })
+					M.toast({ html: 'Enter a valid URL starting with https. <br>e.g: https://yp.shoutcast.com/sbin/tunein-station.m3u?id=1796807' })
 				} else if (url_valid) {
 					showToast('info', 'Enter the station name');
 				} else {
