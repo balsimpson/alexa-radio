@@ -708,7 +708,9 @@
 						<div class="col s12">
 							<input id="modal-station-url"
 								placeholder="e.g: https://shoutcast.com/tunein-station.m3u?id=1796807"
-								class="white-text validate" type="url">
+								class="white-text validate" pattern="https://.+" type="url"
+								data-error="URL must start with https">
+							<span class="helper-text"></span>
 						</div>
 						<div class="col s11">
 							<input id="modal-station-name" placeholder="Station Name" class="white-text validate"
@@ -852,10 +854,13 @@
 			event.preventDefault();
 			let collection_item_div = el(`#${channel_name}`);
 			let channel_index = collection_item_div.getAttribute('data-index');
-			console.log('index:', channel_index);
+			
 
 			let item_name = el(`#${channel_name}-station-name`).value;
 			let item_url = el(`#${channel_name}-station-url`).value;
+
+			let name_valid = el(`#${channel_name}-station-name`).classList.contains("valid");
+			let url_valid = el(`#${channel_name}-station-url`).classList.contains("valid");
 
 			let items_div = el(`#${channel_name}-station-name`).parentNode.parentNode.parentNode.nextElementSibling;
 
@@ -865,8 +870,8 @@
 				status: 'unplayed'
 			}
 
-			if (item_name && item_url) {
-
+			if (name_valid && url_valid) {
+				console.log(name_valid, url_valid);
 				let index = items_div.children.length;
 
 				let stationhtml = quickStationHTML(item, channel_name, index);
@@ -893,7 +898,14 @@
 				el(`#${channel_name}-station-url`).classList.remove('invalid');
 
 			} else {
-				showToast('info', `Add station name and station URL`);
+				console.log('else', name_valid, url_valid);
+				if (name_valid) {
+					M.toast({ html: 'Enter a valid URL starting with https. <br>e.g: https://yp.shoutcast.com/sbin/tunein-station.m3u?id=1796807' })
+				} else if (url_valid) {
+					showToast('info', 'Enter the station name');
+				} else {
+					showToast('info', 'Enter the station name and the station URL');
+				}
 
 			}
 		}
@@ -1001,7 +1013,7 @@
 				console.log(station_name, station_url);
 
 				if (name_valid) {
-					M.toast({ html: 'Enter a valid URL. <br>e.g: http://yp.shoutcast.com/sbin/tunein-station.m3u?id=1796807' })
+					M.toast({ html: 'Enter a valid URL starting with https. <br>e.g: https://yp.shoutcast.com/sbin/tunein-station.m3u?id=1796807' })
 				} else if (url_valid) {
 					showToast('info', 'Enter the station name');
 				} else {
@@ -1175,7 +1187,7 @@
 
 					e.preventDefault();
 					let channel_container = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
-					
+
 					let index = channel_container.getAttribute('data-index');
 
 					let channel_name = collection.list[index].name;
@@ -1410,32 +1422,32 @@
 			let station_item = createNode('div', ['row', 'station-item', 'valign-wrapper']);
 			station_item.setAttribute('data-index', index);
 			station_item.innerHTML = `
-		<div class="col s11">
-			<span contenteditable=true class="station-name">${station.name}</span>
-			<span class="station-status-${station.status}">${station.status}</span><br>
-			<span contenteditable=true class="station-url">${station.url}</span>
-		</div>
+				<div class="col s11">
+					<span contenteditable=true class="station-name">${station.name}</span>
+					<span class="station-status-${station.status}">${station.status}</span><br>
+					<span contenteditable=true class="station-url">${station.url}</span>
+				</div>
 
-		<div class="col s1">
-			<a class="delete-station-btn" href="#"><i class="tiny material-icons right">close</i></a>
-		</div>
-	`;
+				<div class="col s1">
+					<a class="delete-station-btn" href="#"><i class="tiny material-icons right">close</i></a>
+				</div>
+			`;
 			return station_item;
 		}
 
 		function stationHTML(station, collection) {
 
 			return `
-		<div class="col s11">
-			<span contenteditable=true class="station-name">${station.name}</span>
-			<span class="station-status-${station.status}">${station.status}</span><br>
-			<span contenteditable=true class="station-url">${station.url}</span>
-		</div>
-	
-		<div class="col s1">
-			<a class="delete-station-btn" href="#"><i class="tiny material-icons right">close</i></a>
-		</div>
-	`;
+				<div class="col s11">
+					<span contenteditable=true class="station-name">${station.name}</span>
+					<span class="station-status-${station.status}">${station.status}</span><br>
+					<span contenteditable=true class="station-url">${station.url}</span>
+				</div>
+			
+				<div class="col s1">
+					<a class="delete-station-btn" href="#"><i class="tiny material-icons right">close</i></a>
+				</div>
+			`;
 		}
 
 		function channelHTML(collection, channel) {
@@ -1478,7 +1490,8 @@
 			<div class="row ${sanitized_name}-item-add station-quick-add">
 				<form>
 					<div class="col s12">
-						<input id="${sanitized_name}-station-url" placeholder="Station URL" type="url" class="validate white-text">
+						<input id="${sanitized_name}-station-url" placeholder="Station URL" type="url" class="validate white-text" pattern="https://.+" data-error="URL must start with https">
+						<span class="helper-text"></span>
 					</div>
 					<div class="col s11">
 						<input id="${sanitized_name}-station-name" placeholder="Station Name" type="text" class="validate white-text">
