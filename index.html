@@ -859,6 +859,9 @@
 			let item_name = el(`#${channel_name}-station-name`).value;
 			let item_url = el(`#${channel_name}-station-url`).value;
 
+			let name_valid = el(`#${channel_name}-station-name`).classList.contains("valid");
+			let url_valid = el(`#${channel_name}-station-url`).classList.contains("valid");
+
 			let items_div = el(`#${channel_name}-station-name`).parentNode.parentNode.parentNode.nextElementSibling;
 
 			let item = {
@@ -867,7 +870,7 @@
 				status: 'unplayed'
 			}
 
-			if (item_name && item_url) {
+			if (name_valid && url_valid) {
 
 				let index = items_div.children.length;
 
@@ -895,7 +898,13 @@
 				el(`#${channel_name}-station-url`).classList.remove('invalid');
 
 			} else {
-				showToast('info', `Add station name and station URL`);
+				if (name_valid) {
+					M.toast({ html: 'Enter a valid URL starting with https. <br>e.g: https://yp.shoutcast.com/sbin/tunein-station.m3u?id=1796807' })
+				} else if (url_valid) {
+					showToast('info', 'Enter the station name');
+				} else {
+					showToast('info', 'Enter the station name and the station URL');
+				}
 
 			}
 		}
