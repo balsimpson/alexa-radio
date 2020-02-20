@@ -309,7 +309,7 @@ class Collection {
       }
 
     }
-    
+
     console.log('item:', item);
     return item;
   }
@@ -416,6 +416,33 @@ async function saveData(savedData) {
     value: savedData
   });
 }
+
+const convertToMillis = (timeDur) => {
+  var time = "PT5M" || "PT1H" || "PT2H15M";
+  let res = timeDur.substring(2, (timeDur.length));
+  let duration_in_mins = 0;
+
+  let timelist = res.split("H");
+
+  if (timelist.length > 1) {
+    let h = parseInt((timelist[0]), 10);
+    let m = timelist[1].split("M");
+    m = parseInt((m), 10)
+    duration_in_mins = +parseInt((h * 60), 10);
+
+    if (m) {
+      duration_in_mins += m;
+    }
+
+  } else {
+    let m = timelist[0].split("M");
+    m = parseInt((m), 10);
+    duration_in_mins = +parseInt(m, 10);
+  }
+
+  return duration_in_mins * 60 * 1000;
+}
+
 // HELPERS END //
 
 const LaunchRequestIntentHandler = async (requestEnvelope) => {
@@ -453,6 +480,10 @@ const IntentRequestHandler = async (requestEnvelope) => {
       response = await PlayRadioIntentHandler(requestEnvelope);
       break;
 
+    case 'ControlRadioIntent':
+      response = await ControlRadioIntentHandler(requestEnvelope);
+      break;
+
     case 'StopIntent':
       response = StopIntentHandler(requestEnvelope);
       break;
@@ -464,8 +495,8 @@ const IntentRequestHandler = async (requestEnvelope) => {
     case 'NextIntent':
       response = NextIntentHandler(requestEnvelope);
       break;
-    
-      case 'PreviousIntent':
+
+    case 'PreviousIntent':
       response = NotSupportedIntentHandler(requestEnvelope);
       break;
 
@@ -532,6 +563,27 @@ const PlayRadioIntentHandler = async (requestEnvelope) => {
 
   } catch (error) {
     console.log('PlayRadioIntentHandler:Error - ', error);
+    Alexa.speak('error: ' + error.message);
+    return Alexa;
+  }
+}
+
+const ControlRadioIntentHandler = async (requestEnvelope) => {
+
+  console.log(requestEnvelope);
+  try {
+    let slot = getSlotValues(requestEnvelope);
+    let control = slot.control;
+    let duration = convertToMillis(slot.duration);
+
+    Alexa
+      .speak(`${control} ${(duration/1000)/60} minutes`)
+      .play(user_url, station.url, station.progress, station.token)
+
+    return Alexa;
+
+  } catch (error) {
+    console.log('ControlRadioIntentHandler:Error - ', error);
     Alexa.speak('error: ' + error.message);
     return Alexa;
   }
@@ -806,7 +858,7 @@ module.exports = async (context) => {
 
     } else {
       let response = ErrorHandler(context.params);
-      
+
       let resObj = {
         statusCode: 200,
         headers: {
