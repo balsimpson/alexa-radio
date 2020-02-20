@@ -69,6 +69,67 @@
                 {
                     "name": "AMAZON.NavigateHomeIntent",
                     "samples": []
+                },
+                {
+                    "name": "AMAZON.ShuffleOffIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ShuffleOnIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.MoreIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateSettingsIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PageUpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PageDownIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PreviousIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollRightIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollDownIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollLeftIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollUpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "ControlRadioIntent",
+                    "slots": [
+                        {
+                            "name": "control",
+                            "type": "CONTROL_TYPE"
+                        },
+                        {
+                            "name": "duration",
+                            "type": "AMAZON.DURATION"
+                        }
+                    ],
+                    "samples": [
+                        "{control} ",
+                        "{control} {duration}"
+                    ]
                 }
             ],
             "types": [
@@ -193,6 +254,31 @@
                         {
                             "name": {
                                 "value": "bla bla bla"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "CONTROL_TYPE",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "rewind",
+                                "synonyms": [
+                                    "skip back",
+                                    "go back",
+                                    "back"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "forward",
+                                "synonyms": [
+                                    "go forward",
+                                    "skip ahead",
+                                    "fast forward"
+                                ]
                             }
                         }
                     ]
