@@ -171,7 +171,7 @@ class Collection {
         now_playing: [
           'This is'
         ],
-        help: [
+        help_playing: [
           'Tell me a station name to play'
         ],
         next_playing: [
@@ -309,7 +309,7 @@ class Collection {
       }
 
     }
-    
+
     console.log('item:', item);
     return item;
   }
@@ -331,7 +331,7 @@ class Collection {
         res = res ? res : 'Next up is - ';
         break;
       case 'help':
-        res = randomItem(this.settings.responses.help);
+        res = randomItem(this.settings.responses.help_playing);
         // console.log(this.settings.responses);
         break;
       case 'error':
@@ -461,11 +461,15 @@ const IntentRequestHandler = async (requestEnvelope) => {
       response = StopIntentHandler(requestEnvelope);
       break;
 
+    case 'CancelIntent':
+      response = StopIntentHandler(requestEnvelope);
+      break;
+
     case 'NextIntent':
       response = NextIntentHandler(requestEnvelope);
       break;
-    
-      case 'PreviousIntent':
+
+    case 'PreviousIntent':
       response = NotSupportedIntentHandler(requestEnvelope);
       break;
 
@@ -806,7 +810,7 @@ module.exports = async (context) => {
 
     } else {
       let response = ErrorHandler(context.params);
-      
+
       let resObj = {
         statusCode: 200,
         headers: {
