@@ -171,7 +171,7 @@ class Collection {
         now_playing: [
           'This is'
         ],
-        help: [
+        help_playing: [
           'Tell me a station name to play'
         ],
         next_playing: [
@@ -331,7 +331,7 @@ class Collection {
         res = res ? res : 'Next up is - ';
         break;
       case 'help':
-        res = randomItem(this.settings.responses.help);
+        res = randomItem(this.settings.responses.help_playing);
         // console.log(this.settings.responses);
         break;
       case 'error':
@@ -451,7 +451,7 @@ const convertMinutes = (timeDur) => {
     duration_in_mins = mi;
     duration_in_txt += ` ${mi} minutes`
   }
-  
+
   let data = {
     dur: duration_in_mins * 60 * 1000,
     txt: duration_in_txt
@@ -502,6 +502,10 @@ const IntentRequestHandler = async (requestEnvelope) => {
       break;
 
     case 'StopIntent':
+      response = StopIntentHandler(requestEnvelope);
+      break;
+
+    case 'CancelIntent':
       response = StopIntentHandler(requestEnvelope);
       break;
 
