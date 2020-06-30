@@ -1,7 +1,9 @@
-#### Update: 
-For a lot of reasons, this deployment was giving a lot of errors when validating. Spent a lot of time bug killing and now everything works including publishing.
+## Update: 
+>  For a lot of reasons, this deployment was giving a lot of errors when validating. Spent a lot of time bug killing and now everything should work including publishing.
+ 
+> Updated CancelIntent
 
-TODO: Alexa Responses customisation through the web page to be implemented.
+> TODO: Alexa Responses customisation through the web page to be implemented.
 
 # Create an Alexa Radio Skill in 5 Minutes
 
