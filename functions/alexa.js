@@ -731,7 +731,8 @@ const getSlotValues = (requestEnvelope) => {
       slots[item].resolutions.resolutionsPerAuthority[0].status.code) {
       switch (slots[item].resolutions.resolutionsPerAuthority[0].status.code) {
         case 'ER_SUCCESS_MATCH':
-          slot_values[name] = slots[item].resolutions.resolutionsPerAuthority[0].values[0].value.id;
+          // slot_values[name] = slots[item].resolutions.resolutionsPerAuthority[0].values[0].value.id;
+          slot_values[name] = slots[item].resolutions.resolutionsPerAuthority[0].values[0].value.name;
           break;
         case 'ER_SUCCESS_NO_MATCH':
           slot_values[name] = slots[item].value;
