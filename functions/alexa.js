@@ -416,6 +416,50 @@ async function saveData(savedData) {
     value: savedData
   });
 }
+
+const convertMinutes = (timeDur) => {
+  var time = "PT5M" || "PT1H" || "PT2H15M";
+  let res = timeDur.substring(2, (timeDur.length));
+  let duration_in_mins = 0;
+  let duration_in_txt = '';
+
+  let timelist = res.split("H");
+
+  if (timelist.length > 1) {
+
+    let hr = parseInt((timelist[0]), 10);
+    let mi = timelist[1].split("M");
+    mi = parseInt((mi), 10)
+
+    if (hr < 2) {
+      duration_in_txt = hr + ' hour'
+    } else {
+      duration_in_txt = hr + ' hours'
+    }
+
+    duration_in_mins = +parseInt((hr * 60), 10);
+
+    if (mi) {
+      duration_in_mins += mi;
+      duration_in_txt += ` ${mi} minutes`
+    }
+
+  } else {
+    let mi = timelist[0].split("M");
+    mi = parseInt((mi), 10);
+
+    duration_in_mins = mi;
+    duration_in_txt += ` ${mi} minutes`
+  }
+
+  let data = {
+    dur: duration_in_mins * 60 * 1000,
+    txt: duration_in_txt
+  }
+
+  return data;
+}
+
 // HELPERS END //
 
 const LaunchRequestIntentHandler = async (requestEnvelope) => {
@@ -453,7 +497,15 @@ const IntentRequestHandler = async (requestEnvelope) => {
       response = await PlayRadioIntentHandler(requestEnvelope);
       break;
 
+    case 'ControlRadioIntent':
+      response = await ControlRadioIntentHandler(requestEnvelope);
+      break;
+
     case 'StopIntent':
+      response = StopIntentHandler(requestEnvelope);
+      break;
+
+    case 'CancelIntent':
       response = StopIntentHandler(requestEnvelope);
       break;
 
@@ -477,6 +529,10 @@ const IntentRequestHandler = async (requestEnvelope) => {
       response = ResumeIntentHandler(requestEnvelope);
       break;
 
+    case 'StartOverIntent':
+      response = StartOverIntentHandler(requestEnvelope);
+      break;
+
     case 'LoopOffIntent':
       response = NotSupportedIntentHandler(requestEnvelope);
       break;
@@ -484,9 +540,6 @@ const IntentRequestHandler = async (requestEnvelope) => {
       response = NotSupportedIntentHandler(requestEnvelope);
       break;
     case 'RepeatIntent':
-      response = NotSupportedIntentHandler(requestEnvelope);
-      break;
-    case 'StartOverIntent':
       response = NotSupportedIntentHandler(requestEnvelope);
       break;
     case 'ShuffleOffIntent':
@@ -541,6 +594,48 @@ const PlayRadioIntentHandler = async (requestEnvelope) => {
   }
 }
 
+const ControlRadioIntentHandler = async (requestEnvelope) => {
+
+  // console.log(requestEnvelope);
+  try {
+    let token = requestEnvelope.context.AudioPlayer.token;
+    let offset = requestEnvelope.context.AudioPlayer.offsetInMilliseconds;
+
+    if (token) {
+      let station = collection.get(token.split(':')[0]);
+      let slot = getSlotValues(requestEnvelope);
+      let control = slot.control;
+
+      let duration = convertMinutes(slot.duration);
+
+      let progress = 0;
+      if (control === 'forward') {
+        progress = offset += duration.dur;
+      } else {
+        progress = offset -= duration.dur;
+      }
+
+      console.log('ControlRadioIntentHandler - ', control, progress, duration, station);
+
+      control = (control === 'forward') ? 'forwarding' : 'rewinding';
+
+      Alexa
+        .speak(`${control} ${duration.txt}`)
+        .play(user_url, station.url, progress, station.token)
+    } else {
+      Alexa
+        .speak(`There is nothing to ${control}`);
+    }
+
+    return Alexa;
+
+  } catch (error) {
+    console.log('ControlRadioIntentHandler:Error - ', error);
+    Alexa.speak('error: ' + error.message);
+    return Alexa;
+  }
+}
+
 const StopIntentHandler = (requestEnvelope) => {
 
   Alexa
@@ -572,6 +667,33 @@ const NextIntentHandler = async (requestEnvelope) => {
     console.log('nextError:', error);
     Alexa
       .speak(`Something went wrong playing the next track.`);
+
+    return Alexa;
+  }
+}
+
+const StartOverIntentHandler = async (requestEnvelope) => {
+
+  // let next_playing = speech('next');
+  try {
+    let token = requestEnvelope.context.AudioPlayer.token;
+    let item = collection.get(token.split(':')[0]);
+
+    if (item) {
+      Alexa
+        .speak(`Starting over ${item.name}`)
+        .play(user_url, item.url, 0, item.token);
+    } else {
+      Alexa
+        .speak(`There is nothing to start over.`);
+    }
+
+    return Alexa;
+
+  } catch (error) {
+    console.log('nextError:', error);
+    Alexa
+      .speak(`Something went wrong playing starting over.`);
 
     return Alexa;
   }
@@ -719,8 +841,7 @@ const getSlotValues = (requestEnvelope) => {
 
   const slot_values = {};
   let slots = requestEnvelope.request.intent.slots;
-
-  // console.log(`filled slots: ${JSON.stringify(slots)}`);
+  console.log(`filled slots: ${JSON.stringify(slots)}`);
   Object.keys(slots).forEach((item) => {
     const name = slots[item].name;
     // console.log(`name: ${name}`);
@@ -731,7 +852,6 @@ const getSlotValues = (requestEnvelope) => {
       slots[item].resolutions.resolutionsPerAuthority[0].status.code) {
       switch (slots[item].resolutions.resolutionsPerAuthority[0].status.code) {
         case 'ER_SUCCESS_MATCH':
-          // slot_values[name] = slots[item].resolutions.resolutionsPerAuthority[0].values[0].value.id;
           slot_values[name] = slots[item].resolutions.resolutionsPerAuthority[0].values[0].value.name;
           break;
         case 'ER_SUCCESS_NO_MATCH':
