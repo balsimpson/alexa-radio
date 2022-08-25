@@ -513,6 +513,10 @@ const IntentRequestHandler = async (requestEnvelope) => {
       response = StopIntentHandler(requestEnvelope);
       break;
 
+    case 'CancelIntent':
+      response = StopIntentHandler(requestEnvelope);
+      break;
+
     case 'NextIntent':
       response = NextIntentHandler(requestEnvelope);
       break;

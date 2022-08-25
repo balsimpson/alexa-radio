@@ -1,7 +1,9 @@
-#### Update: 
-For a lot of reasons, this deployment was giving a lot of errors when validating. Spent a lot of time bug killing and now everything works including publishing.
+## Update: 
+>  For a lot of reasons, this deployment was giving a lot of errors when validating. Spent a lot of time bug killing and now everything should work including publishing.
+ 
+> Updated CancelIntent
 
-TODO: Alexa Responses customisation through the web page to be implemented.
+> TODO: Alexa Responses customisation through the web page to be implemented.
 
 # Create an Alexa Radio Skill in 5 Minutes
 
@@ -26,7 +28,7 @@ Deploying it is incredibly easy thanks to [Standard Library](https://stdlib.com/
 
 The first step is to deploy your code to [Standard Library](https://stdlib.com/). **Right-Click** on the button below to deploy.
 
-[<img src="https://deploy.stdlib.com/static/images/deploy.svg" width="192">](https://deploy.stdlib.com/)
+[<img src="https://open.autocode.com/static/images/open.svg?" width="192">](https://open.autocode.com/)
 
 On the new page, click on the **Generate Identity** button. Once that's done, click on the **Deploy Project** button under it to deploy the code.
 
