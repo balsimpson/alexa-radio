@@ -1,3 +1,11 @@
+Try this:
+
+https://dev.to/balsimpson/alexa-radio-skill-fle-temp-slug-7195018?preview=7aa1db5a4b9cdbd3c34086cb5356be53e8536935e458a14da35609ea5d28dc2ee9705c725542d6d60d7f4412ed0ac96f0a9b56dec9affa9031a68bed
+
+Fully hosted on AWS, responsive website on Vercel and Firebase to store data. Any feedback/ comment is welcome. Few things might change.
+
+----
+DEPRECATED!
 ## Update: 
 >  For a lot of reasons, this deployment was giving a lot of errors when validating. Spent a lot of time bug killing and now everything should work including publishing.
  
