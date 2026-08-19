@@ -1,0 +1,26 @@
+{
+  "env": "env.json",
+  "dependencies": true,
+  "endpoints": [
+    {
+      "function": "functions/__main__.js",
+      "type": "webpage",
+      "url": "/"
+    },
+    {
+      "function": "functions/alexa.js",
+      "type": "api",
+      "url": "/alexa"
+    },
+    {
+      "function": "functions/assets.js",
+      "type": "api",
+      "url": "/assets"
+    },
+    {
+      "function": "functions/stations.js",
+      "type": "api",
+      "url": "/stations"
+    }
+  ]
+}
